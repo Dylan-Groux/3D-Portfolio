@@ -33,7 +33,7 @@ const Hero = () => {
   
   return (
     <section className="flex items-start justify-center md:items-start md:justify-start min-h-screen 
-    overflow-hidden c-space">
+    overflow-hidden c-space" href="#home">
         <HeroText />
         <ParallaxBackground />
         <figure className="absolute inset-0" 

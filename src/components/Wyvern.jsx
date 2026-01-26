@@ -67,7 +67,23 @@ export function Wyvern(props) {
                 action8.clampWhenFinished = true
                 action8.fadeIn(0.5)
                 action8.play()
-                setTimeout(() => { action8.paused = true }, 2100) // Met en pause après 2.1 secondes
+                setTimeout(() => { action8.paused = true 
+
+                  const material = materials.Dragon_Boss_05;
+                  material.transparent = true;
+
+                  let opacity = 1.0;
+                  const fadeInterval = setInterval(() => {
+                    opacity -= 0.02;
+                    materials.opacity = opacity;
+                  })
+
+                  if (opacity <= 0) {
+                    clearInterval(fadeInterval);
+                  }
+                  group.current.visible = false;
+                
+                }, 2100) // Met en pause après 2.1 secondes
               }, 500) // Attend la fin du fadeOut
             }
           }
