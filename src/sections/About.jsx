@@ -20,12 +20,29 @@ const About = () => {
                 </p>
             </div>
         </div>
-        {/* Grid 2 */}
-        <div className="flex items-end grid-default-color grid-2">
-            <img src="assets/grid-3-ctadragon.png" 
-            alt="" 
-            className="absolute scale-[1.75] -bottom-10 md:scale-[1.75] md:-bottom-2 xl:scale-[1.25] xl:-bottom-25">
-            </img>
+        {/* Grid 2 - Flip Card */}
+        <div className="grid-default-color grid-2 perspective:1000px group cursor-pointer">
+            <div className="relative w-full h-full transition-transform duration-1200 transform-3d group-hover:[transform:rotateY(180deg)]">
+                {/* Face avant (image) */}
+                <div className="absolute inset-0 flex items-end [backface-visibility:hidden]">
+                    <img 
+                        src="assets/grid-3-ctadragon.png" 
+                        alt="" 
+                        className="absolute scale-[1.75] -bottom-10 md:scale-[1.75] md:-bottom-2 xl:scale-[1.25] xl:-bottom-25"
+                    />
+                </div>
+                
+                {/* Face arrière (texte) */}
+                <div className="absolute inset-0 flex items-center justify-center p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                    <div className="text-center z-10">
+                        <h3 className="headtext mb-4">Contactez-moi</h3>
+                        <p className="subtext2 mb-6">
+                            Discutons de votre prochain projet
+                        </p>
+                        <a href="#contact" className="btn">Contactez-moi</a>
+                    </div>
+                </div>
+            </div>
         </div>
         {/* Grid 3 */}
         <div className="flex items-end grid-black-color grid-3">
@@ -36,7 +53,7 @@ const About = () => {
         <div className="flex items-end grid-special-color grid-4">
             <img src="assets/grid-4-architectedragon.png" 
             alt="" 
-            className="absolute scale-[1.75] -bottom-25 md:scale-[2.25] md:-bottom-5">
+            className="absolute scale-[1.75] -bottom-25 md:scale-[2.25] md:-bottom-15 xl:scale-[2.0] xl:-bottom-25">
             </img>
         </div>
         {/* Grid 5 */}
