@@ -9,6 +9,12 @@ const App = () => {
       <Navbar />
       <Hero />
       <About />
+      <section></section>
+            <section></section>
+                  <section></section>
+                        <section></section>
+                              <section></section>
+                                    <section></section>
       {/* work */}
       {/* experience */}
       {/* testimonials */}
