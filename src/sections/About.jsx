@@ -17,7 +17,7 @@ const About = () => {
             <img 
                 src="assets/grid-5-meanddragon.png" 
                 alt="" 
-                className="about-image absolute scale-[1.25] -bottom-5 -right-4 md:scale-[1.85] md:bottom-30 xl:scale-[1.25] xl:-bottom-5"
+                className="about-image absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.25] md:scale-[1.85] xl:scale-[1.25]"
             />
             <div className="z-10 md:hover:bg-black/70 md:transition-colors md:duration-500 md:p-4 md:rounded-md">
                 <h3 className="headtext">Dylan — Développeur Full-Stack</h3>
@@ -32,7 +32,7 @@ const About = () => {
         {/* Grid 2 - Stack Technique */}
         <div className="grid-default-color grid-2 relative overflow-hidden group about-image-container">
             <div className="manga-overlay"></div>
-            <img src="assets/grid-2-languagedragon.png" alt="" className="about-image absolute scale-[1.95] -left-1 md:scale-[1.85] md:bottom-5 md:left-3">
+            <img src="assets/grid-2-languagedragon.png" alt="" className="about-image absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.95] md:scale-[1.85]">
             </img>
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 backdrop-blur-sm transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div className="text-center z-10 p-6">
@@ -55,7 +55,7 @@ const About = () => {
             <img 
                 src="assets/grid-3-ctadragon.png" 
                 alt="" 
-                className="about-image absolute scale-[1.75] -bottom-10 left-9.5 md:scale-[1.75] md:-bottom-2 xl:scale-[1.25] xl:-bottom-25"
+                className="about-image absolute top-1/2 left-2/3 -translate-x-1/2 -translate-y-1/2 scale-[1.75] md:scale-[1.75] xl:scale-[1.45]"
             />
             
             {/* Effet tache d'encre qui s'étend depuis le centre */}
@@ -99,7 +99,7 @@ const About = () => {
             <div className="manga-overlay"></div>
             <img src="assets/grid-4-architectedragon.png" 
             alt="" 
-            className="about-image absolute scale-[1.75] -bottom-25 md:scale-[2.25] md:-bottom-15 xl:scale-[2.0] xl:-bottom-25">
+            className="about-image absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.75] md:scale-[2.25] xl:scale-[2.0]">
             </img>
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 backdrop-blur-sm transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div className="text-center z-10 p-6">
@@ -121,7 +121,7 @@ const About = () => {
                     <div className="manga-overlay"></div>
                     <img src="assets/grid-1-codingdragonn.png" 
                     alt="" 
-                    className="about-image absolute scale-[1.5] -bottom-10 left-1/2 -translate-x-1/2 md:scale-[2.0] md:-bottom-5 md:left-0 md:translate-x-0 xl:scale-[1.5] xl:-bottom-15">
+                    className="about-image absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.5] md:scale-[2.0] xl:scale-[1.5]">
                     </img>
                 </div>
                 {/* Partie Texte */}
