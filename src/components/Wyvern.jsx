@@ -75,13 +75,13 @@ export function Wyvern(props) {
                   let opacity = 1.0;
                   const fadeInterval = setInterval(() => {
                     opacity -= 0.02;
-                    materials.opacity = opacity;
-                  })
+                    material.opacity = opacity;
 
-                  if (opacity <= 0) {
-                    clearInterval(fadeInterval);
-                  }
-                  group.current.visible = false;
+                    if (opacity <= 0) {
+                      clearInterval(fadeInterval);
+                      group.current.visible = false;
+                    }
+                  }, 50) // Intervalle de 50ms
                 
                 }, 2100) // Met en pause après 2.1 secondes
               }, 500) // Attend la fin du fadeOut
