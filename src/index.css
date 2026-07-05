@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap');
+@import 'tailwindcss';
 @theme {
   --color-primary: #030412;
   --color-midnight: #06091f;
@@ -17,8 +17,8 @@
   --animate-orbit: orbit 50s linear infinite;
   @keyframes orbit {
     0% {
-      transform: rotate(calc(var(--angle) * 1deg))
-        translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));
+      transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px))
+        rotate(calc(var(--angle) * -1deg));
     }
     100% {
       transform: rotate(calc(var(--angle) * 1deg + 360deg))
@@ -49,7 +49,8 @@
 
   /* Animation de flottement pour les images */
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -69,7 +70,8 @@
 
   /* Animation overlay violet/bleu manga */
   @keyframes pulseGlow {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0.1;
     }
     50% {
@@ -79,7 +81,7 @@
 }
 body {
   background: #000000;
-  font-family: "Funnel Display", sans-serif;
+  font-family: 'Funnel Display', sans-serif;
   color: white;
   scroll-behavior: smooth;
   overflow-x: hidden;

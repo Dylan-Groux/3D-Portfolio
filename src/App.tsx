@@ -1,10 +1,10 @@
-import React from "react";
-import Navbar from "./sections/Navbar.jsx";
-import Hero from "./sections/Hero.jsx";
-import About from "./sections/About.jsx";
-import Projects from "./sections/Projects.jsx";
+import React from 'react';
+import Navbar from './sections/Navbar.js';
+import Hero from './sections/Hero.js';
+import About from './sections/About.js';
+import Projects from './sections/Projects.js';
 const App = () => {
-  return ( 
+  return (
     <div className="container mx-auto max-w-7xl">
       <Navbar />
       <Hero />
