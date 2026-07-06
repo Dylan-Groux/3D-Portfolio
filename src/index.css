@@ -206,3 +206,21 @@ body {
 .field-input-focus {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20;
 }
+
+@media (max-width: 768px) {
+  .animate-loader-slide {
+    animation: none;
+  }
+
+  .about-image {
+    animation: none;
+  }
+
+  .manga-overlay {
+    animation: none;
+  }
+
+  .keyBurns {
+    animation: none;
+  }
+}
