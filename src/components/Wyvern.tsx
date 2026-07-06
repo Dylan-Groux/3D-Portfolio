@@ -7,7 +7,7 @@ export function Wyvern(props: WyvernProps) {
   const group = useRef<THREE.Group | null>(null);
   const loopCount = useRef(0); // Compteur de répétitions
   const { nodes, materials, animations } = useGLTF(
-    '/models/mega_wyvern.glb',
+    '/models/mega_wyvern-optimized.glb',
   ) as unknown as {
     nodes: {
       GLTF_created_0_rootJoint: THREE.Object3D;
@@ -161,4 +161,4 @@ export function Wyvern(props: WyvernProps) {
   );
 }
 
-useGLTF.preload('/models/mega_wyvern.glb');
+useGLTF.preload('/models/mega_wyvern-optimized.glb');
