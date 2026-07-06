@@ -15,7 +15,7 @@ const About = () => {
         <div className="flex items-end grid-default-color grid-1 relative overflow-hidden group about-image-container">
           <div className="manga-overlay"></div>
           <img
-            src="assets/grid-5-meanddragon.png"
+            src="assets/grid-5-meanddragon.webp"
             alt=""
             className="about-image absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.25] md:scale-[1.85] xl:scale-[1.25]"
           />
@@ -29,7 +29,7 @@ const About = () => {
         <div className="grid-default-color grid-2 relative overflow-hidden group about-image-container">
           <div className="manga-overlay"></div>
           <img
-            src="assets/grid-2-languagedragon.png"
+            src="assets/grid-2-languagedragon.webp"
             alt=""
             className="about-image absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.95] md:scale-[1.85]"
           ></img>
@@ -50,7 +50,7 @@ const About = () => {
 
           {/* Image de base */}
           <img
-            src="assets/grid-3-ctadragon.png"
+            src="assets/grid-3-ctadragon.webp"
             alt=""
             className="about-image absolute top-1/2 left-2/3 -translate-x-1/2 -translate-y-1/2 scale-[1.75] md:scale-[1.75] xl:scale-[1.45]"
           />
@@ -96,7 +96,7 @@ const About = () => {
         <div className="grid-special-color grid-4 relative overflow-hidden group about-image-container">
           <div className="manga-overlay"></div>
           <img
-            src="assets/grid-4-architectedragon.png"
+            src="assets/grid-4-architectedragon.webp"
             alt=""
             className="about-image absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.75] md:scale-[2.25] xl:scale-[2.0]"
           ></img>
@@ -117,7 +117,7 @@ const About = () => {
             <div className="hidden w-full h-48 md:block md:w-1/2 md:h-full relative overflow-hidden about-image-container">
               <div className="manga-overlay"></div>
               <img
-                src="assets/grid-1-codingdragonn.png"
+                src="assets/grid-1-codingdragonn.webp"
                 alt=""
                 className="about-image absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.5] md:scale-[2.0] xl:scale-[1.5]"
               ></img>

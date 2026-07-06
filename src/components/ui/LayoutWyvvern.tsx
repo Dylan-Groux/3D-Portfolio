@@ -30,18 +30,18 @@ const LayoutWyvvern = () => {
   return (
     <>
       {/* Corps du dragon - z-0 (derrière les cartes) */}
-      <img src="assets/borderdragon.png" className={`${positionClasses} z-0`} alt="" />
+      <img src="assets/borderdragon.webp" className={`${positionClasses} z-0`} alt="" />
 
       {/* Griffe droite - z-40 (devant les cartes) */}
       <img
-        src="assets/borderdragonrighthandgriffe.png"
+        src="assets/borderdragonrighthandgriffe.webp"
         className={`${positionClasses} z-40`}
         alt=""
       />
 
       {/* Griffe gauche - z-40 (devant les cartes) */}
       <img
-        src="assets/borderdragonlefthandgriffe.png"
+        src="assets/borderdragonlefthandgriffe.webp"
         className={`${positionClasses} z-40`}
         alt=""
       />

@@ -13,16 +13,16 @@ const Project = ({
   setPreview,
 }: ProjectProps) => {
   const [isHidden, setIsHidden] = useState(false);
-  const canHover = useMediaQuery({ query: '(hover: hover) and (pointer: fine)' });
+  const isDesktop = useMediaQuery({ minWidth: 1024 });
 
   const handleMouseEnter = () => {
-    if (canHover) {
+    if (isDesktop) {
       setPreview(image);
     }
   };
 
   const handleMouseLeave = () => {
-    if (canHover) {
+    if (isDesktop) {
       setPreview(null);
     }
   };
@@ -44,10 +44,10 @@ const Project = ({
         </div>
         <button
           onClick={() => setIsHidden(true)}
-          className="flex items-center gap-1 cursor-pointer hover-animation"
+          className={`flex items-center gap-1 cursor-pointer ${isDesktop ? 'hover-animation' : ''}`}
         >
           Voir le projet
-          <img src="assets/arrow-right.png" alt="arrow-right" className="w-5" />
+          <img src="assets/arrow-right.webp" alt="arrow-right" className="w-5" />
         </button>
       </div>
       <div className="bg-linear-to-r from-transparent via-neutral-700 to-transparent h-px w-full" />
