@@ -78,6 +78,19 @@
       opacity: 0.3;
     }
   }
+
+  @keyframes loaderSlide {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(120%);
+    }
+  }
+}
+
+.animate-loader-slide {
+  animation: loaderSlide 4.5s linear infinite;
 }
 body {
   background: #000000;
