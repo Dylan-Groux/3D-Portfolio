@@ -1,6 +1,7 @@
 import ProjectDetails from './ProjectDetails';
 import { useState } from 'react';
 import { ProjectProps } from './_type';
+import { useMediaQuery } from 'react-responsive';
 
 const Project = ({
   title,
@@ -12,12 +13,26 @@ const Project = ({
   setPreview,
 }: ProjectProps) => {
   const [isHidden, setIsHidden] = useState(false);
+  const canHover = useMediaQuery({ query: '(hover: hover) and (pointer: fine)' });
+
+  const handleMouseEnter = () => {
+    if (canHover) {
+      setPreview(image);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (canHover) {
+      setPreview(null);
+    }
+  };
+
   return (
     <>
       <div
         className="flex-wrap items-center py-10 justify-between space-y-14 sm:flex sm:space-y-0"
-        onMouseEnter={() => setPreview(image)}
-        onMouseLeave={() => setPreview(null)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div>
           <p className="text-2xl">{title}</p>
@@ -31,7 +46,7 @@ const Project = ({
           onClick={() => setIsHidden(true)}
           className="flex items-center gap-1 cursor-pointer hover-animation"
         >
-          Read More
+          Voir le projet
           <img src="assets/arrow-right.png" alt="arrow-right" className="w-5" />
         </button>
       </div>
