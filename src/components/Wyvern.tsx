@@ -23,9 +23,10 @@ export function Wyvern(props: WyvernProps) {
   const object82 = nodes.Object_82;
 
   useEffect(() => {
-    if (animations.length >= 10) {
+    // Il faut au moins les clips 0, 8 et 10 (utilisés plus bas) pour pouvoir animer.
+    if (animations.length < 11) {
       return;
-    } // Si moins de 10 animations, ne rien faire
+    }
 
     let isDisposed = false;
     const timeoutIds: number[] = [];
