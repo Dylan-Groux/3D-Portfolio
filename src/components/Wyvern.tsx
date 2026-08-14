@@ -22,99 +22,108 @@ export function Wyvern(props: WyvernProps) {
   const object82 = nodes.Object_82;
 
   useEffect(() => {
-    // LOG toutes les animations disponibles
-    console.log(
-      '🎬 Animations disponibles:',
-      animations.map((anim) => anim.name),
-    );
-    console.log("📊 Nombre d'animations:", animations.length);
+    if (animations.length >= 10) return; // Si moins de 10 animations, ne rien faire
 
-    if (animations.length > 10) {
-      // 1. Joue l'animation 10 UNE SEULE FOIS
-      const action10 = actions[animations[10].name];
-      const action0 = actions[animations[0].name];
-      const action8 = actions[animations[8].name];
+    let isDisposed = false;
+    const timeoutIds: number[] = [];
+    const intervalIds: number[] = [];
 
-      if (!action10 || !action0 || !action8) return;
+    const safeTimeout = (fn: () => void, ms: number) => {
+      const id = window.setTimeout(() => {
+        if (!isDisposed) fn();
+      }, ms);
+      timeoutIds.push(id);
+      return id;
+    };
 
-      // Configure l'animation 10 pour ne jouer qu'une fois
-      action10.setLoop(THREE.LoopOnce, 1); // LoopOnce = joue 1 fois
-      action10.clampWhenFinished = true; // Reste sur la dernière frame
+    const safeInterval = (fn: () => void, ms: number) => {
+      const id = window.setInterval(() => {
+        if (!isDisposed) fn();
+      }, ms);
+      intervalIds.push(id);
+      return id;
+    };
 
-      // 2. Écoute quand les animations se terminent ou bouclent
-      const mixer = action10.getMixer();
+    const action10 = actions[animations[10]?.name];
+    const action0 = actions[animations[0]?.name];
+    const action8 = actions[animations[8]?.name];
 
-      const onFinished = (e: THREE.Event & { action?: THREE.AnimationAction }) => {
-        if (e.action === action10) {
-          console.log('✅ Animation 10 terminée, lance animation 0');
+    if (!action10 || !action0 || !action8) return;
 
-          // 3. Lance l'animation 0 en boucle
-          loopCount.current = 0; // Réinitialise le compteur
-          action0.reset();
-          action0.setLoop(THREE.LoopRepeat, Infinity); // Boucle infinie
-          action0.fadeIn(0.5);
-          action0.play();
-        }
-      };
+    action10.reset();
+    action0.reset();
+    action8.reset();
 
-      // Event qui se déclenche à chaque fin de boucle
-      const onLoop = (e: THREE.Event & { action?: THREE.AnimationAction }) => {
-        if (e.action === action0) {
-          loopCount.current++;
-          console.log(`🔁 Animation 0 : boucle ${loopCount.current}/8`);
+    action10.setLoop(THREE.LoopOnce, 1);
+    action10.clampWhenFinished = true;
 
-          // Après 8 répétitions, lance l'animation 8
-          if (loopCount.current >= 8) {
-            console.log('✅ 8 boucles terminées, lance animation 8');
+    const mixer = action10.getMixer();
 
-            action0.fadeOut(0.5);
-            setTimeout(() => {
-              action0.stop();
+    const onFinished = (e: THREE.Event & { action?: THREE.AnimationAction }) => {
+      if (isDisposed || e.action !== action10) return;
 
-              // Lance l'animation 8 en boucle infinie
-              action8.reset();
-              action8.setLoop(THREE.LoopOnce, 1); // Joue 1 fois
-              action8.clampWhenFinished = true;
-              action8.fadeIn(0.5);
-              action8.play();
-              setTimeout(() => {
-                action8.paused = true;
+      action0.reset();
+      action0.setLoop(THREE.LoopRepeat, Infinity);
+      action0.fadeIn(0.5);
+      action0.play();
+    };
 
-                const material = materials.Dragon_Boss_05;
-                material.transparent = true;
+    const onLoop = (e: THREE.Event & { action?: THREE.AnimationAction }) => {
+      if (isDisposed || e.action !== action0) return;
 
-                let opacity = 1.0;
-                const fadeInterval = setInterval(() => {
-                  opacity -= 0.02;
-                  material.opacity = opacity;
+      loopCount.current++;
+      if (loopCount.current < 8) return;
 
-                  if (opacity <= 0) {
-                    clearInterval(fadeInterval);
-                    if (group.current) {
-                      group.current.visible = false;
-                    }
-                  }
-                }, 50); // Intervalle de 50ms
-              }, 2100); // Met en pause après 2.1 secondes
-            }, 500); // Attend la fin du fadeOut
-          }
-        }
-      };
+      action0.fadeOut(0.5);
 
-      mixer.addEventListener('finished', onFinished);
-      mixer.addEventListener('loop', onLoop); // Écoute les boucles
+      safeTimeout(() => {
+        action0.stop();
 
-      // Lance l'animation 10
-      console.log('▶️ Animation 10 lancée:', animations[10].name);
-      action10.play();
+        action8.reset();
+        action8.setLoop(THREE.LoopOnce, 1);
+        action8.clampWhenFinished = true;
+        action8.fadeIn(0.5);
+        action8.play();
 
-      // Cleanup : retire l'event listener quand le composant se démonte
-      return () => {
-        mixer.removeEventListener('finished', onFinished);
-        mixer.removeEventListener('loop', onLoop);
-      };
-    }
-  }, [actions, animations]);
+        safeTimeout(() => {
+          action8.paused = true;
+
+          const material = materials.Dragon_Boss_05;
+          material.transparent = true;
+          let opacity = 1.0;
+
+          safeInterval(() => {
+            opacity -= 0.02;
+            material.opacity = opacity;
+
+            if (opacity <= 0 && group.current) {
+              group.current.visible = false;
+            }
+          }, 50);
+        }, 2100);
+      }, 500);
+    };
+
+    loopCount.current = 0;
+    mixer.addEventListener('finished', onFinished);
+    mixer.addEventListener('loop', onLoop);
+    action10.play();
+
+    return () => {
+      isDisposed = true;
+
+      timeoutIds.forEach((id) => clearTimeout(id));
+      intervalIds.forEach((id) => clearInterval(id));
+
+      mixer.removeEventListener('finished', onFinished);
+      mixer.removeEventListener('loop', onLoop);
+
+      action10.stop();
+      action0.stop();
+      action8.stop();
+    };
+  }, [actions, animations, materials]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Sketchfab_Scene">
@@ -160,5 +169,3 @@ export function Wyvern(props: WyvernProps) {
     </group>
   );
 }
-
-useGLTF.preload('/models/mega_wyvern-optimized.glb');

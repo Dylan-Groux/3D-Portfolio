@@ -1,16 +1,124 @@
-# React + Vite
+# 3D Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Portfolio 3D interactif développé avec React, TypeScript et Three.js.
 
-Currently, two official plugins are available:
+Le projet met en avant des sections animées, un hero 3D immersif, une présentation des compétences et une galerie de projets.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Aperçu
 
-## React Compiler
+- Hero avec scène 3D (modèle Wyvern) et effet parallaxe.
+- Loader d'application avec progression et fallback adaptatif.
+- Section About en grille animée (cards, overlays, transitions).
+- Section Projects avec aperçu visuel au survol (desktop).
+- Navigation responsive (menu mobile + navigation desktop).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack technique
 
-## Expanding the ESLint configuration
+- React 19 + TypeScript
+- Vite 7
+- Tailwind CSS 4
+- React Three Fiber + Drei + Three.js
+- Motion (animations)
+- ESLint + Prettier + Husky + lint-staged
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Diagramme de cas d'utilisation
+
+```mermaid
+flowchart LR
+		V[Visiteur] --> U1[Naviguer sur le portfolio]
+		V --> U2[Consulter la section About]
+		V --> U3[Consulter les projets]
+		V --> U4[Ouvrir les liens des projets externes]
+
+		subgraph S[3D Portfolio]
+			U1
+			U2
+			U3
+			U4
+		end
+```
+
+Note: un CTA « Contactez-moi » est présent dans la section About, mais il n'existe pas encore de section/formulaire de contact dédié dans l'application actuelle.
+
+## Installation
+
+Prérequis:
+
+- Node.js 20+
+- npm 10+
+
+Commandes:
+
+```bash
+npm install
+```
+
+## Lancer le projet
+
+Développement:
+
+```bash
+npm run dev
+```
+
+Build de production:
+
+```bash
+npm run build
+```
+
+Prévisualisation du build:
+
+```bash
+npm run preview
+```
+
+## Qualité de code
+
+Lint:
+
+```bash
+npm run lint
+```
+
+Correction automatique lint:
+
+```bash
+npm run lint:fix
+```
+
+Formatage:
+
+```bash
+npm run format
+```
+
+Vérification formatage:
+
+```bash
+npm run format:check
+```
+
+Vérification qualité globale:
+
+```bash
+npm run quality
+```
+
+## Structure du projet
+
+```text
+src/
+	components/
+		ui/
+	constants/
+	sections/
+	App.tsx
+	main.tsx
+```
+
+## Points d'attention actuels
+
+- Les ancres actives des sections sont: `#home`, `#about`, `#work`.
+- Le lien de navigation `#content` ne correspond pas encore à une section existante.
+- Le rendu 3D peut être désactivé automatiquement selon les capacités du device/réseau.
