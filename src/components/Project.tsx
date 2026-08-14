@@ -1,7 +1,8 @@
-import ProjectDetails from './ProjectDetails';
 import { useState } from 'react';
-import { ProjectProps } from './_type';
 import { useMediaQuery } from 'react-responsive';
+
+import { ProjectProps } from './_type';
+import ProjectDetails from './ProjectDetails';
 
 const Project = ({
   title,

@@ -1,3 +1,14 @@
+import type { Article } from '../components/_type';
+
+// Coordonnées reprises à plusieurs endroits (formulaire, section contact,
+// footer) : centralisées ici pour éviter qu'elles divergent entre elles.
+export const CONTACT_EMAIL = 'dylangroux2105@gmail.com';
+export const GITHUB_URL = 'https://github.com/Dylan-Groux';
+export const LINKEDIN_URL = 'https://www.linkedin.com/in/dylan-groux-dev/';
+export const SITE_URL = 'https://redar.fr';
+
+export const myArticles: Article[] = [];
+
 export const myProjects = [
   {
     id: 1,
@@ -85,36 +96,6 @@ export const myProjects = [
   },
   {
     id: 4,
-    title: 'CSP-Clickjacking-Prevention',
-    description:
-      'Création de démonstrations interactives pour sensibiliser aux risques de clickjacking et aux erreurs de configuration Content Security Policy (CSP).',
-    subDescription: [
-      "Le projet illustre concrètement des scénarios d'attaque via iframe et propose des protections applicatives côté front et headers HTTP.",
-      'Objectif: vulgariser des sujets sécurité web avec une approche pédagogique, testable et facile à reproduire.',
-    ],
-    href: 'https://github.com/Dylan-Groux/CSP-Clickjacking-Prevention',
-    logo: '',
-    image: 'assets/projects/csp-clickjacking.webp',
-    tags: [
-      {
-        id: 1,
-        name: 'HTML',
-        logo: 'assets/language/html.webp',
-      },
-      {
-        id: 2,
-        name: 'JavaScript',
-        logo: 'assets/language/javascript.webp',
-      },
-      {
-        id: 3,
-        name: 'CSP',
-        logo: 'assets/language/css.webp',
-      },
-    ],
-  },
-  {
-    id: 5,
     title: 'Abricot',
     description:
       "Développement d'une application SaaS centrée sur une expérience utilisateur moderne, avec une architecture front-end modulaire et évolutive.",
@@ -138,7 +119,7 @@ export const myProjects = [
     ],
   },
   {
-    id: 6,
+    id: 5,
     title: 'Site de mise en relation',
     description:
       "Développement d'une plateforme de mise en relation entre professionnels et clients, avec une interface utilisateur intuitive et des fonctionnalités de recherche avancées.",
@@ -158,25 +139,6 @@ export const myProjects = [
         id: 2,
         name: 'JavaScript',
         logo: 'assets/language/javascript.webp',
-      },
-    ],
-  },
-  {
-    id: 7,
-    title: 'Médiathèque',
-    description:
-      "Création d'une médiathèque en ligne pour la gestion et le partage de contenus multimédias, avec des fonctionnalités de téléchargement, de catégorisation et de recherche.",
-    subDescription: [
-      "J'ai développé une médiathèque en ligne pour la gestion et le partage de contenus multimédias, avec des fonctionnalités de téléchargement, de catégorisation et de recherche.",
-    ],
-    href: 'https://github.com/Dylan-Groux/Mediatek86',
-    logo: '',
-    image: 'assets/projects/mediatheque.webp',
-    tags: [
-      {
-        id: 1,
-        name: 'C#',
-        logo: 'assets/language/csharp.webp',
       },
     ],
   },

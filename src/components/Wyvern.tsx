@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+
 import { WyvernProps } from './_type';
 
 export function Wyvern(props: WyvernProps) {
@@ -22,7 +23,9 @@ export function Wyvern(props: WyvernProps) {
   const object82 = nodes.Object_82;
 
   useEffect(() => {
-    if (animations.length >= 10) return; // Si moins de 10 animations, ne rien faire
+    if (animations.length >= 10) {
+      return;
+    } // Si moins de 10 animations, ne rien faire
 
     let isDisposed = false;
     const timeoutIds: number[] = [];
@@ -30,7 +33,9 @@ export function Wyvern(props: WyvernProps) {
 
     const safeTimeout = (fn: () => void, ms: number) => {
       const id = window.setTimeout(() => {
-        if (!isDisposed) fn();
+        if (!isDisposed) {
+          fn();
+        }
       }, ms);
       timeoutIds.push(id);
       return id;
@@ -38,7 +43,9 @@ export function Wyvern(props: WyvernProps) {
 
     const safeInterval = (fn: () => void, ms: number) => {
       const id = window.setInterval(() => {
-        if (!isDisposed) fn();
+        if (!isDisposed) {
+          fn();
+        }
       }, ms);
       intervalIds.push(id);
       return id;
@@ -48,7 +55,9 @@ export function Wyvern(props: WyvernProps) {
     const action0 = actions[animations[0]?.name];
     const action8 = actions[animations[8]?.name];
 
-    if (!action10 || !action0 || !action8) return;
+    if (!action10 || !action0 || !action8) {
+      return;
+    }
 
     action10.reset();
     action0.reset();
@@ -60,7 +69,9 @@ export function Wyvern(props: WyvernProps) {
     const mixer = action10.getMixer();
 
     const onFinished = (e: THREE.Event & { action?: THREE.AnimationAction }) => {
-      if (isDisposed || e.action !== action10) return;
+      if (isDisposed || e.action !== action10) {
+        return;
+      }
 
       action0.reset();
       action0.setLoop(THREE.LoopRepeat, Infinity);
@@ -69,10 +80,14 @@ export function Wyvern(props: WyvernProps) {
     };
 
     const onLoop = (e: THREE.Event & { action?: THREE.AnimationAction }) => {
-      if (isDisposed || e.action !== action0) return;
+      if (isDisposed || e.action !== action0) {
+        return;
+      }
 
       loopCount.current++;
-      if (loopCount.current < 8) return;
+      if (loopCount.current < 8) {
+        return;
+      }
 
       action0.fadeOut(0.5);
 

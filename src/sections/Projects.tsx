@@ -1,8 +1,9 @@
-import { myProjects } from '../constants';
-import Project from '../components/Project';
 import { motion, useMotionValue, useSpring } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { useMediaQuery } from 'react-responsive';
+
+import Project from '../components/Project';
+import { myProjects } from '../constants';
 
 const Projects = () => {
   const isDesktop = useMediaQuery({ minWidth: 1024 });
@@ -10,7 +11,7 @@ const Projects = () => {
   const y = useMotionValue(0);
   const springX = useSpring(x, { damping: 10, stiffness: 50 });
   const springY = useSpring(y, { damping: 10, stiffness: 50 });
-  const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
     if (!isDesktop) {
       return;
     }
@@ -18,17 +19,13 @@ const Projects = () => {
     x.set(event.clientX + 20);
     y.set(event.clientY + 20);
   };
+  // isDesktop && preview ci-dessous suffit à masquer l'aperçu hors desktop :
+  // pas besoin d'un effet pour remettre `preview` à null au changement de viewport.
   const [preview, setPreview] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isDesktop) {
-      setPreview(null);
-    }
-  }, [isDesktop]);
 
   return (
     <section onMouseMove={handleMouseMove} className="relative c-space mt-50" id="work">
-      <h2 className="text-heading"> Projects </h2>
+      <h2 className="text-heading">Projets</h2>
       <div className="bg-linear-to-r from-transparent via-neutral-700 to-transparent mt-12 h-px w-full" />
       {myProjects.map((project) => (
         <Project key={project.id} {...project} setPreview={setPreview} />

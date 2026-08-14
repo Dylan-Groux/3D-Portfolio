@@ -1,6 +1,7 @@
-import { FlipWords } from './FlipWords';
 import { motion } from 'motion/react';
+
 import { HeroTextProps } from './_type';
+import { FlipWords } from './FlipWords';
 
 const HeroText = ({ words = ['Php', 'React', 'Symfony'] }: HeroTextProps) => {
   const variants = {

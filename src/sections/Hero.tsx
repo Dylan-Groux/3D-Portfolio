@@ -1,16 +1,23 @@
+import { lazy, Suspense, useState, useEffect } from 'react';
+
 import HeroText from '../components/HeroText';
 import ParallaxBackground from '../components/ParallaxBackground';
-import { lazy, Suspense, useState, useEffect } from 'react';
 
 const HeroScene3D = lazy(() => import('../components/HeroScene3D'));
 
 type HeroProps = {
   is3DEnabled: boolean;
   on3DReady: () => void;
+  onProgress?: (progress: number) => void;
   disableReadySignal?: boolean;
 };
 
-const Hero = ({ is3DEnabled, on3DReady, disableReadySignal = false }: HeroProps) => {
+const Hero = ({
+  is3DEnabled,
+  on3DReady,
+  onProgress,
+  disableReadySignal = false,
+}: HeroProps) => {
   const [shouldMount3D, setShouldMount3D] = useState(false);
 
   useEffect(() => {
@@ -32,7 +39,11 @@ const Hero = ({ is3DEnabled, on3DReady, disableReadySignal = false }: HeroProps)
       <ParallaxBackground />
       {is3DEnabled && shouldMount3D && (
         <Suspense fallback={null}>
-          <HeroScene3D on3DReady={on3DReady} disableReadySignal={disableReadySignal} />
+          <HeroScene3D
+            on3DReady={on3DReady}
+            onProgress={onProgress}
+            disableReadySignal={disableReadySignal}
+          />
         </Suspense>
       )}
     </section>

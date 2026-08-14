@@ -1,27 +1,32 @@
-import { useState } from 'react';
 import { motion } from 'motion/react';
+import { useState } from 'react';
 
 function Navigation() {
   return (
     <ul className="nav-ul">
       <li className="nav-li">
         <a className="nav-link" href="#home">
-          Home
+          Accueil
         </a>
       </li>
       <li className="nav-li">
         <a className="nav-link" href="#about">
-          About
+          À propos
         </a>
       </li>
       <li className="nav-li">
         <a className="nav-link" href="#work">
-          Work
+          Projets
         </a>
       </li>
       <li className="nav-li">
         <a className="nav-link" href="#content">
-          Content
+          Articles
+        </a>
+      </li>
+      <li className="nav-li">
+        <a className="nav-link" href="#contact">
+          Contact
         </a>
       </li>
     </ul>

@@ -1,8 +1,9 @@
 'use client';
-import React, { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { NonEmptyArray, FlipWordsProps } from './_type';
+
+import { FlipWordsProps } from './_type';
 
 export const FlipWords = ({ words, duration = 3000, className }: FlipWordsProps) => {
   const [currentWord, setCurrentWord] = useState(words[0]);

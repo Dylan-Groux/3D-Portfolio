@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+
 import { ProjectDetailsProps } from './_type';
 
 const ProjectDetails = ({

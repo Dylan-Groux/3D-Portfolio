@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, useProgress } from '@react-three/drei';
-import { useMediaQuery } from 'react-responsive';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { easing } from 'maath';
-import { Wyvern } from '../components/Wyvern';
+import { useEffect, useRef, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
 import * as THREE from 'three';
+
+import { Wyvern } from '../components/Wyvern';
 
 type HeroScene3DProps = {
   on3DReady: () => void;
+  onProgress?: (progress: number) => void;
   disableReadySignal?: boolean;
 };
 
@@ -37,23 +39,52 @@ function Rig({ isMobile }: RigProps) {
   });
 }
 
-function SceneReadySignal({ onReady }: { onReady: () => void }) {
+type SceneProgressProps = {
+  onReady: () => void;
+  onProgress?: (progress: number) => void;
+  disableReadySignal: boolean;
+};
+
+// Seul point de la scène qui interroge le LoadingManager de Three.js. On y
+// dérive à la fois la progression (pour la barre de chargement) et le signal
+// "prêt", pour n'avoir qu'un seul abonnement à useProgress dans toute l'app.
+function SceneProgress({ onReady, onProgress, disableReadySignal }: SceneProgressProps) {
   const { active, progress } = useProgress();
   const notifiedRef = useRef(false);
 
   useEffect(() => {
-    if (!notifiedRef.current && !active && progress >= 100) {
+    onProgress?.(progress);
+  }, [progress, onProgress]);
+
+  useEffect(() => {
+    if (disableReadySignal || notifiedRef.current) {
+      return;
+    }
+
+    if (!active && progress >= 100) {
       notifiedRef.current = true;
       onReady();
     }
-  }, [active, onReady, progress]);
+  }, [active, disableReadySignal, onReady, progress]);
 
   return null;
 }
 
-const HeroScene3D = ({ on3DReady, disableReadySignal = false }: HeroScene3DProps) => {
+const HeroScene3D = ({
+  on3DReady,
+  onProgress,
+  disableReadySignal = false,
+}: HeroScene3DProps) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [isContextLost, setIsContextLost] = useState(false);
+
+  useEffect(() => {
+    if (isContextLost) {
+      console.warn(
+        'WebGL context lost. Please refresh the page to restore the 3D scene.',
+      );
+    }
+  }, [isContextLost]);
 
   const onCreated = ({ gl }: { gl: THREE.WebGLRenderer }) => {
     const canvas = gl.domElement;
@@ -72,12 +103,6 @@ const HeroScene3D = ({ on3DReady, disableReadySignal = false }: HeroScene3DProps
 
   return (
     <figure className="absolute inset-0" style={{ width: '100%', height: '100%' }}>
-      {isContextLost
-        ? (console.warn(
-            'WebGL context lost. Please refresh the page to restore the 3D scene.',
-          ),
-          null)
-        : null}
       {!isContextLost && (
         <Canvas
           dpr={[1, 1.5]}
@@ -97,7 +122,11 @@ const HeroScene3D = ({ on3DReady, disableReadySignal = false }: HeroScene3DProps
             />
           </Float>
           <Rig isMobile={isMobile} />
-          {!disableReadySignal && <SceneReadySignal onReady={on3DReady} />}
+          <SceneProgress
+            onReady={on3DReady}
+            onProgress={onProgress}
+            disableReadySignal={disableReadySignal}
+          />
         </Canvas>
       )}
     </figure>

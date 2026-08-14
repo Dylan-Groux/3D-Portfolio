@@ -30,27 +30,35 @@ export type ProjectTag = {
   logo: string;
 };
 
-/**------------------------Project Props ------------------------ */
-export type ProjectProps = {
+type ProjectBase = {
   title: string;
   description: string;
   subDescription: string[];
   tags: ProjectTag[];
   image: string;
   href: string;
+};
+
+/**------------------------Project Props ------------------------ */
+export type ProjectProps = ProjectBase & {
   setPreview: (image: string | null) => void;
 };
 
 /**------------------------Project Details Props ------------------------ */
-export type ProjectDetailsProps = {
-  title: string;
-  description: string;
-  subDescription: string[];
-  tags: ProjectTag[];
-  image: string;
-  href: string;
+export type ProjectDetailsProps = ProjectBase & {
   closeModal: () => void;
 };
 
 /**------------------------Wyvern Props ------------------------ */
 export type WyvernProps = ThreeElements['group'];
+
+/**------------------------Article Props ------------------------ */
+export type Article = {
+  id: number;
+  title: string;
+  date: string;
+  readTime: string;
+  excerpt: string;
+  tags: string[];
+  href: string;
+};
