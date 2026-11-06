@@ -60,9 +60,9 @@ const Card1 = () => {
     >
       <div className="absolute inset-0">
         <motion.img
-          src="assets/grid-5-meanddragon.webp"
+          src="assets/grid-5-meanddragon-v2.jpg"
           alt=""
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-[center_40%]"
           animate={{ scale: hovered ? 1.06 : 1 }}
           transition={{ duration: 0.7, ease: 'easeInOut' }}
         />
