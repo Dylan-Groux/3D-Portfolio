@@ -8,6 +8,7 @@ import Footer from './sections/Footer.js';
 import Hero from './sections/Hero.js';
 import Navbar from './sections/Navbar.js';
 import Projects from './sections/Projects.js';
+import Youtube from './sections/Youtube.js';
 
 const MIN_BOOT_DELAY_MS = 5000;
 const MAX_3D_WAIT_MS = 8000;
@@ -101,6 +102,7 @@ const App = () => {
         <About />
         <Projects />
         <Content />
+        <Youtube />
         <Contact />
         {shouldShowLoader && (
           <AppLoader progress={bootProgress} is3DEnabled={is3DEnabled} />

@@ -7,7 +7,7 @@ export const GITHUB_URL = 'https://github.com/Dylan-Groux';
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/dylan-groux-dev/';
 export const SITE_URL = 'https://redar.fr';
 
-export const YOUTUBE_URL = 'https://www.youtube.com/@devdecod3d';
+export const YOUTUBE_URL = 'https://www.youtube.com/@DevDecod3d';
 
 // Solution temporaire : chaque article est une page HTML statique dans
 // public/articles/, en attendant un vrai système de blog.
