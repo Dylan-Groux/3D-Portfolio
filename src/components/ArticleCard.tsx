@@ -20,6 +20,8 @@ const tagColors: Record<string, string> = {
   Freelance: '#cc6033',
   Organisation: '#d6995c',
   Beauvais: '#57db96',
+  JavaScript: '#d6995c',
+  YouTube: '#ea4884',
 };
 
 type ArticleCardProps = {

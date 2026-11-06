@@ -7,7 +7,22 @@ export const GITHUB_URL = 'https://github.com/Dylan-Groux';
 export const LINKEDIN_URL = 'https://www.linkedin.com/in/dylan-groux-dev/';
 export const SITE_URL = 'https://redar.fr';
 
-export const myArticles: Article[] = [];
+export const YOUTUBE_URL = 'https://www.youtube.com/@devdecod3d';
+
+// Solution temporaire : chaque article est une page HTML statique dans
+// public/articles/, en attendant un vrai système de blog.
+export const myArticles: Article[] = [
+  {
+    id: 1,
+    title: 'Le langage du navigateur',
+    date: 'Nov. 2026',
+    readTime: '15 min',
+    excerpt:
+      "Cours interactif compagnon de l'épisode 7 de devdecod3d : l'histoire de JavaScript, le trajet d'une page, le DOM, la boucle d'événements et les pièges hérités du langage.",
+    tags: ['JavaScript', 'Web', 'YouTube'],
+    href: 'articles/le-langage-du-navigateur.html',
+  },
+];
 
 export const myProjects = [
   {

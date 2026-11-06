@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Le langage du navigateur · devdecod3d · Dylan Groux</title>
+<meta name="description" content="Cours interactif compagnon de l'épisode 7 de devdecod3d : l'histoire de JavaScript, le trajet d'une page, le DOM, la boucle d'événements et les pièges du langage.">
+<link rel="canonical" href="https://redar.fr/articles/le-langage-du-navigateur.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap">
+<style>
+/* Mise en page : un cahier de labo pixel, une colonne de lecture, des « machines » interactives pleine largeur.
+   Thème sombre unique, assumé : c'est la DA de la chaîne devdecod3d. */
+:root {
+  color-scheme: dark;
+  --bg: #0e0e10;
+  --panel: #17171d;
+  --panel-2: #1f1f28;
+  --line: #2c2c3a;
+  --fg: #f3efe4;
+  --muted: #a3a9bd;
+  --yel: #ffe14d;
+  --red: #ff3b30;
+  --teal: #2ec4b6;
+  --green: #3ddc84;
+  --off: #26262f;
+  --ink: #0e0e10;
+  --display: 'Anton', 'Impact', 'Arial Narrow', sans-serif;
+  --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --pixel: 'Silkscreen', 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 17px/1.65 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 56px; }
+.prose { max-width: 66ch; }
+h1, h2 { font-family: var(--display); font-weight: 400; letter-spacing: .01em; text-wrap: balance; line-height: 1.05; margin: 0; }
+h1 { font-size: clamp(48px, 11vw, 104px); }
+h2 { font-size: clamp(34px, 6vw, 52px); }
+h3 { font: 800 19px/1.3 var(--body); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.stack { display: grid; gap: 16px; }
+.eyebrow { font: 400 13px/1 var(--pixel); letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+.k { color: var(--yel); font-weight: 600; }
+.r { color: var(--red); font-weight: 600; }
+.t { color: var(--teal); font-weight: 600; }
+code, .mono { font-family: var(--mono); font-size: .92em; }
+code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: var(--yel); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--yel); outline-offset: 2px; }
+
+header { padding-block: 48px 8px; display: grid; gap: 20px; }
+header h1 span { color: var(--yel); }
+.lede { font-size: 20px; max-width: 60ch; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a { font: 400 12px/1 var(--pixel); text-decoration: none; color: var(--fg); background: var(--panel); border: 2px solid var(--line); padding: 9px 11px; letter-spacing: .04em; }
+nav.toc a:hover { border-color: var(--yel); color: var(--yel); }
+
+section { display: grid; gap: 22px; scroll-margin-top: 24px; }
+.sec-head { display: grid; gap: 8px; }
+
+/* machines */
+.machine { background: var(--panel); border: 3px solid var(--line); padding: 20px; display: grid; gap: 16px; min-width: 0; box-shadow: 6px 6px 0 #00000080; }
+.machine > .label { font: 400 12px/1 var(--pixel); color: var(--muted); letter-spacing: .06em; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { font: 700 14px/1 var(--mono); background: var(--panel-2); color: var(--fg); border: 2px solid var(--line); padding: 10px 14px; cursor: pointer; }
+.btn:hover:not(:disabled) { border-color: var(--yel); }
+.btn.on { background: var(--yel); color: var(--ink); border-color: var(--yel); }
+.btn:disabled { opacity: .45; cursor: default; }
+input[type=text] { font: 700 15px/1 var(--mono); background: var(--bg); color: var(--fg); border: 2px solid var(--line); padding: 10px 12px; min-width: 0; flex: 1 1 220px; }
+input[type=text].bad { border-color: var(--red); }
+input[type=text].good { border-color: var(--green); }
+input[type=range] { width: 100%; accent-color: var(--yel); }
+.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.cell-out { background: var(--bg); border: 2px solid var(--line); padding: 10px 12px; display: grid; gap: 4px; min-width: 0; }
+.cell-out .lab { font: 400 11px/1 var(--pixel); color: var(--muted); letter-spacing: .05em; }
+.cell-out .val { font: 700 20px/1.2 var(--mono); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.msg { font: 600 15px/1.5 var(--body); min-height: 1.5em; }
+.msg.ok { color: var(--green); }
+.msg.bad { color: var(--red); }
+.hint { font: 400 14px/1.4 var(--mono); color: var(--muted); min-height: 1.4em; }
+.hint.bad { color: var(--red); }
+.hint.ok { color: var(--green); }
+
+/* machine 1 : trajet */
+.lane { width: 100%; height: auto; display: block; }
+.lane text { font-family: var(--pixel); }
+.lane .box { fill: var(--bg); stroke: var(--line); stroke-width: 3; }
+.lane .box.hot { stroke: var(--yel); }
+.lane .wire { stroke: var(--line); stroke-width: 3; stroke-dasharray: 8 8; }
+
+/* machine 2 : cycle de vie */
+.flow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.flow .col { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.flow .col-h { font: 400 12px/1 var(--pixel); color: var(--muted); letter-spacing: .06em; }
+.node { background: var(--bg); border: 2px solid var(--line); padding: 10px 12px; font: 600 15px/1.3 var(--body); color: var(--muted); transition: border-color .2s, color .2s, background .2s; min-width: 0; overflow-wrap: anywhere; }
+.node small { display: block; font: 400 12px/1.3 var(--mono); color: inherit; opacity: .8; }
+.node.hot { border-color: var(--yel); color: var(--fg); background: #1c1a0e; }
+.node.hot.srv { border-color: var(--teal); background: #0e1f1d; }
+.track { position: relative; height: 46px; background: var(--bg); border: 2px dashed var(--line); }
+.track .end { position: absolute; top: 50%; transform: translateY(-50%); font: 400 11px/1 var(--pixel); color: var(--muted); padding: 0 8px; }
+.track .end.l { left: 0; } .track .end.r { right: 0; }
+.token { position: absolute; top: 50%; left: 0; transform: translate(0, -50%); background: var(--yel); color: var(--ink); font: 700 13px/1 var(--mono); padding: 7px 9px; white-space: nowrap; opacity: 0; box-shadow: 3px 3px 0 #00000080; }
+.token.srv { background: var(--teal); }
+.step-text { min-height: 5.2em; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.dots i { width: 12px; height: 12px; background: var(--off); border: 2px solid #08080c; display: block; }
+.dots i.on { background: var(--yel); }
+
+/* machine 3 : DOM */
+.dom-box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 640px) { .dom-box, .flow { grid-template-columns: 1fr; } }
+.mini { background: var(--fg); color: #1d1d24; padding: 16px; border: 3px solid #08080c; display: grid; gap: 10px; align-content: start; min-height: 220px; }
+.mini h4 { margin: 0; font: 800 20px/1.2 var(--body); }
+.mini ul { margin: 0; padding-left: 20px; }
+.mini .like { justify-self: start; font: 700 15px/1 var(--mono); background: #e9e4d6; color: #1d1d24; border: 2px solid #1d1d24; padding: 8px 12px; }
+.mini .like.aime { background: var(--red); color: var(--fg); }
+.mini .flash, .tree .flash { animation: flash 1s ease-out; }
+@keyframes flash { 0% { box-shadow: 0 0 0 4px var(--yel); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.tree { background: #0a0a0d; border: 2px solid var(--line); padding: 12px 14px; font: 400 14px/1.7 var(--mono); overflow-x: auto; min-width: 0; }
+.tree div { white-space: nowrap; width: max-content; }
+.tree .tag { color: var(--teal); }
+.tree .txt { color: var(--muted); }
+.tree .cls { color: var(--red); }
+.snips { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px; }
+.snips button { white-space: pre-wrap; text-align: left; font: 400 13px/1.45 var(--mono); background: #0a0a0d; color: var(--fg); border: 2px solid var(--line); padding: 10px 12px; cursor: pointer; overflow-wrap: anywhere; }
+.snips button:hover { border-color: var(--yel); }
+
+/* machine 4 : boucle d'événements */
+.code-lines { background: #0a0a0d; border: 2px solid var(--line); padding: 10px 0; font: 400 15px/1.8 var(--mono); overflow-x: auto; }
+.code-lines div { padding: 0 14px; white-space: pre; border-left: 4px solid transparent; }
+.code-lines div.cur { background: #1c1a0e; border-left-color: var(--yel); }
+.loop { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.zone { background: var(--bg); border: 2px solid var(--line); padding: 10px; display: grid; gap: 6px; align-content: start; min-height: 110px; min-width: 0; }
+.zone .lab { font: 400 11px/1.2 var(--pixel); color: var(--muted); letter-spacing: .05em; }
+.chip { font: 700 12px/1.3 var(--mono); padding: 6px 8px; border: 2px solid #08080c; overflow-wrap: anywhere; }
+.chip.st { background: var(--yel); color: var(--ink); }
+.chip.api { background: var(--panel-2); color: var(--fg); border-color: var(--line); }
+.chip.mi { background: var(--teal); color: var(--ink); }
+.chip.ta { background: #ff8a3d; color: var(--ink); }
+.chip.out { background: transparent; color: var(--green); border-color: transparent; padding: 0; font-size: 16px; }
+
+/* machine 5 : console */
+.traps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.trap { background: #0a0a0d; border: 2px solid var(--line); padding: 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.trap .ex { font: 700 16px/1.3 var(--mono); color: var(--fg); overflow-wrap: anywhere; }
+.trap .ex::before { content: "> "; color: var(--muted); }
+.trap .res { font: 700 16px/1.3 var(--mono); color: var(--yel); overflow-wrap: anywhere; }
+.trap .res::before { content: "← "; color: var(--muted); }
+.trap .why { font-size: 14px; color: var(--muted); line-height: 1.5; }
+.trap .btn { justify-self: start; padding: 7px 10px; font-size: 12px; }
+
+/* frise */
+ol.tl { list-style: none; margin: 0; padding: 0; display: grid; border-left: 3px solid var(--line); }
+ol.tl li { padding: 6px 0 14px 18px; position: relative; }
+ol.tl li::before { content: ""; position: absolute; left: -8px; top: 12px; width: 13px; height: 13px; background: var(--yel); border: 2px solid #08080c; }
+ol.tl li.std::before { background: var(--teal); }
+ol.tl li.bad::before { background: var(--red); }
+ol.tl .when { font: 700 13px/1.3 var(--mono); color: var(--yel); display: block; }
+ol.tl li.std .when { color: var(--teal); }
+ol.tl li.bad .when { color: var(--red); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font: 400 12px/1 var(--pixel); color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; vertical-align: -1px; border: 2px solid #08080c; background: var(--yel); }
+.legend .std::before { background: var(--teal); }
+.legend .bad::before { background: var(--red); }
+
+table.cmp { border-collapse: collapse; width: 100%; font: 400 15px/1.45 var(--body); }
+.scroll { overflow-x: auto; }
+table.cmp th, table.cmp td { border-bottom: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+table.cmp th { font: 400 11px/1.2 var(--pixel); color: var(--muted); letter-spacing: .05em; white-space: nowrap; }
+table.cmp td:first-child { color: var(--muted); white-space: nowrap; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 2px solid var(--line); padding: 14px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.card .yr { font: 400 12px/1 var(--pixel); color: var(--yel); letter-spacing: .05em; }
+
+pre { margin: 0; background: #0a0a0d; border: 2px solid var(--line); padding: 14px 16px; overflow-x: auto; font: 400 14px/1.6 var(--mono); }
+pre .c { color: var(--muted); }
+pre .s { color: var(--teal); }
+pre .x { color: var(--red); }
+details { background: var(--panel-2); border: 2px solid var(--line); padding: 10px 14px; }
+details summary { cursor: pointer; font: 400 12px/1.4 var(--pixel); letter-spacing: .05em; color: var(--yel); }
+details[open] summary { margin-bottom: 10px; }
+details .stack { gap: 10px; }
+
+.q { background: var(--panel); border: 3px solid var(--line); padding: 18px; display: grid; gap: 12px; }
+.q .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.q .opts button { text-align: left; font: 600 15px/1.35 var(--body); background: var(--bg); color: var(--fg); border: 2px solid var(--line); padding: 10px 12px; cursor: pointer; }
+.q .opts button:hover:not(:disabled) { border-color: var(--yel); }
+.q .opts button.good { border-color: var(--green); background: #0f2a1c; }
+.q .opts button.wrong { border-color: var(--red); background: #2a0f0f; }
+.q .opts button:disabled { cursor: default; }
+.q .exp { border-left: 3px solid var(--yel); padding-left: 12px; }
+.score { font: 400 14px/1 var(--pixel); color: var(--yel); }
+
+.callout { border: 3px solid var(--yel); padding: 16px 18px; display: grid; gap: 8px; background: #1c1a0e; }
+.callout.teal { border-color: var(--teal); background: #0e1f1d; }
+.callout.red { border-color: var(--red); background: #1f0f0f; }
+footer { color: var(--muted); font-size: 14px; display: grid; gap: 8px; }
+footer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<style>
+.article-bar { max-width: 880px; margin: 0 auto; padding: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; font: 400 13px/1 var(--pixel); letter-spacing: .06em; text-transform: uppercase; }
+.article-bar a { color: var(--muted); text-decoration: none; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.article-bar a:hover { color: var(--fg); border-color: var(--muted); }
+.article-bar a.yt { color: var(--ink); background: var(--red); border-color: var(--red); }
+.article-bar a.yt:hover { color: var(--ink); filter: brightness(1.1); }
+</style>
+<nav class="article-bar" aria-label="Navigation article">
+  <a href="/#content">&larr; Retour au portfolio</a>
+  <a class="yt" href="https://www.youtube.com/@devdecod3d" target="_blank" rel="noopener noreferrer">&#9654; Voir la chaîne YouTube</a>
+</nav>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">devdecod3d · cours compagnon de l'épisode 7</p>
+  <h1>Le langage du <span>navigateur</span></h1>
+  <p class="lede">En 1995, une page web était une feuille figée. JavaScript est né pour la faire réagir sans attendre le serveur. Ce cours suit le trajet complet d'une page, ouvre le moteur qui fait tourner ton code, et explique les bizarreries que le langage traîne depuis ses dix premiers jours.</p>
+  <nav class="toc" aria-label="Sommaire">
+    <a href="#aller-retour">1 · L'aller-retour</a>
+    <a href="#histoire">2 · Dix jours, trois noms</a>
+    <a href="#trajet">3 · Le trajet d'une page</a>
+    <a href="#dom">4 · Le DOM</a>
+    <a href="#boucle">5 · Un seul fil</a>
+    <a href="#pieges">6 · Les pièges hérités</a>
+    <a href="#partout">7 · Partout aujourd'hui</a>
+    <a href="#defis">8 · Défis</a>
+    <a href="#memo">Fiche mémo</a>
+  </nav>
+</header>
+
+<!-- 1. ALLER-RETOUR -->
+<section id="aller-retour">
+  <div class="sec-head">
+    <p class="eyebrow">Le problème de départ</p>
+    <h2>1 · Chaque vérification, un aller-retour</h2>
+  </div>
+  <div class="prose stack">
+    <p>Avant JavaScript, le navigateur savait <span class="k">afficher</span> du HTML, et c'est tout. Pour savoir si un e-mail était bien écrit, il fallait envoyer le formulaire au serveur, attendre sa réponse, puis recommencer en cas d'erreur.</p>
+    <p>Essaie les deux époques. L'e-mail de départ a un défaut : il lui manque l'arobase.</p>
+  </div>
+
+  <div class="machine" id="m-trip">
+    <span class="label">MACHINE 1 · LE FORMULAIRE D'INSCRIPTION</span>
+    <div class="row" role="group" aria-label="Époque">
+      <button class="btn on" id="trip-1995" type="button" aria-pressed="true">1995 · sans JavaScript</button>
+      <button class="btn" id="trip-js" type="button" aria-pressed="false">Avec JavaScript</button>
+    </div>
+    <form id="trip-form" class="stack" novalidate>
+      <label for="trip-email" class="eyebrow">E-mail</label>
+      <div class="row">
+        <input type="text" id="trip-email" value="jean.dupont-gmail.com" autocomplete="off" spellcheck="false">
+        <button class="btn" type="submit" id="trip-send">Envoyer</button>
+      </div>
+      <p id="trip-live" class="hint" aria-live="polite"></p>
+    </form>
+    <svg class="lane" viewBox="0 0 600 120" role="img" aria-label="Trajet du formulaire entre le navigateur et le serveur">
+      <rect class="box" id="lane-nav" x="6" y="26" width="150" height="68"></rect>
+      <text x="81" y="66" text-anchor="middle" font-size="13" fill="#f3efe4">NAVIGATEUR</text>
+      <rect class="box" id="lane-srv" x="444" y="26" width="150" height="68"></rect>
+      <text x="519" y="66" text-anchor="middle" font-size="13" fill="#f3efe4">SERVEUR</text>
+      <line class="wire" x1="156" y1="60" x2="444" y2="60"></line>
+      <g id="packet" opacity="0">
+        <rect x="-46" y="38" width="92" height="44" fill="#ffe14d" stroke="#08080c" stroke-width="3"></rect>
+        <text id="packet-txt" x="0" y="65" text-anchor="middle" font-size="11" fill="#0e0e10">FORMULAIRE</text>
+      </g>
+    </svg>
+    <label for="trip-delay" class="row" style="justify-content:space-between"><span>Durée d'un aller-retour (simulation) : <strong class="k" id="trip-delay-out">3 s</strong></span></label>
+    <input type="range" id="trip-delay" min="0.5" max="6" step="0.5" value="3">
+    <div class="readout">
+      <div class="cell-out"><span class="lab">ALLER-RETOURS</span><span class="val" id="trip-count">0</span></div>
+      <div class="cell-out"><span class="lab">TEMPS D'ATTENTE</span><span class="val" id="trip-wait">0 s</span></div>
+      <div class="cell-out"><span class="lab">QUI A VÉRIFIÉ ?</span><span class="val" id="trip-who" style="font-size:16px">personne</span></div>
+    </div>
+    <p id="trip-msg" class="msg" aria-live="polite"></p>
+    <div class="row"><button class="btn" id="trip-reset" type="button">Recommencer</button></div>
+  </div>
+
+  <div class="callout red">
+    <h3>La question de l'épisode : ta réponse ?</h3>
+    <p>Si JavaScript vérifie l'e-mail dans le navigateur, est-ce que ton contrôleur Symfony peut se passer de ses contraintes de validation ? Réponds dans ta tête avant d'ouvrir.</p>
+    <details>
+      <summary>VOIR LA RÉPONSE</summary>
+      <div class="stack">
+        <p><strong>Non, jamais.</strong> Le JavaScript tourne sur la machine de l'utilisateur, donc l'utilisateur en a le contrôle. Il peut le désactiver, le modifier dans les outils de développement, ou envoyer la requête sans passer par la page du tout :</p>
+<pre>curl -X POST https://ton-site.fr/inscription -d "email=nimportequoi"</pre>
+        <p>La vérification côté navigateur sert le <span class="k">confort</span> (réponse instantanée, moins d'allers-retours). La vérification côté serveur sert la <span class="r">sécurité</span> et l'intégrité des données. Dans la machine ci-dessus, en mode JavaScript, regarde la case « Qui a vérifié ? » quand l'e-mail est correct : les deux.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- 2. HISTOIRE -->
+<section id="histoire">
+  <div class="sec-head">
+    <p class="eyebrow">Les faits</p>
+    <h2>2 · Dix jours, trois noms, une norme</h2>
+  </div>
+  <div class="prose stack">
+    <p>En 1995, Netscape édite le navigateur le plus utilisé. Il embauche <span class="k">Brendan Eich</span>, à l'origine pour mettre le langage Scheme dans le navigateur. La direction change de cap : il faut un petit langage de « colle », assez simple pour qu'un designer écrive quelques lignes directement dans le HTML, et dont la syntaxe ressemble à Java.</p>
+    <p>Java, lui, est vu comme le langage des composants lourds, écrit par des programmeurs professionnels. JavaScript, c'est pour tout le monde.</p>
+  </div>
+  <div class="legend"><span>JavaScript dans le navigateur</span><span class="std">Norme ECMAScript</span><span class="bad">Échec</span></div>
+  <ol class="tl">
+    <li><span class="when">Mai 1995</span>Brendan Eich écrit le prototype en dix jours d'affilée. Nom de code : <strong>Mocha</strong>.</li>
+    <li><span class="when">Septembre 1995</span>Première version publique, sous le nom <strong>LiveScript</strong>, dans la bêta de Netscape Navigator 2.0.</li>
+    <li><span class="when">4 décembre 1995</span>Netscape et Sun annoncent ensemble le nom <strong>JavaScript</strong>, en pleine vague Java.</li>
+    <li><span class="when">Mars 1996</span>Netscape Navigator 2.0 sort en version finale, avec JavaScript 1.0.</li>
+    <li class="std"><span class="when">Juin 1997</span>Première norme, ECMA-262. Elle ne peut pas s'appeler « JavaScript » : le nom est une marque déposée. On l'appelle <strong>ECMAScript</strong>.</li>
+    <li><span class="when">Mars 1999</span>Microsoft livre avec Internet Explorer 5 l'objet qui deviendra <code>XMLHttpRequest</code> : charger des données sans recharger la page. L'idée vient de l'équipe d'Outlook Web Access.</li>
+    <li class="std"><span class="when">Décembre 1999</span>ECMAScript 3, la version qui va porter le web pendant dix ans.</li>
+    <li class="bad"><span class="when">2008</span>ECMAScript 4, trop ambitieux, n'est jamais publié : le projet est abandonné après des années de brouillons.</li>
+    <li><span class="when">2004 à 2005</span>Gmail (2004) puis Google Maps (2005) montrent qu'on peut faire de vraies applications dans une page. Le 18 février 2005, Jesse James Garrett baptise la technique <strong>Ajax</strong>.</li>
+    <li><span class="when">2 septembre 2008</span>Google sort Chrome avec <strong>V8</strong>, un moteur qui compile le JavaScript en code machine à la volée. JavaScript devient rapide.</li>
+    <li><span class="when">Novembre 2009</span>Ryan Dahl présente <strong>Node.js</strong> : V8 sorti du navigateur, JavaScript côté serveur. npm naît la même année.</li>
+    <li class="std"><span class="when">Décembre 2009</span>ECMAScript 5 : mode strict, JSON natif.</li>
+    <li class="std"><span class="when">Juin 2015</span>ECMAScript 2015 (ES6), la grosse refonte : <code>let</code>, <code>const</code>, classes, fonctions fléchées, promesses, modules.</li>
+    <li class="std"><span class="when">Chaque juin depuis</span>Une nouvelle édition par an. <code>async</code> / <code>await</code> arrive en 2017.</li>
+  </ol>
+
+  <div class="scroll">
+    <table class="cmp">
+      <caption class="eyebrow" style="text-align:left;padding-bottom:10px">Java et JavaScript, comme chat et château</caption>
+      <thead><tr><th></th><th>JAVA</th><th>JAVASCRIPT</th></tr></thead>
+      <tbody>
+        <tr><td>Créé par</td><td>Sun Microsystems (1995)</td><td>Netscape, Brendan Eich (1995)</td></tr>
+        <tr><td>Tourne où</td><td>Dans la machine virtuelle Java (JVM)</td><td>Dans le moteur du navigateur, ou dans Node.js</td></tr>
+        <tr><td>Types</td><td>Statiques : déclarés et vérifiés à la compilation</td><td>Dynamiques : une variable peut changer de type</td></tr>
+        <tr><td>Objets</td><td>Classes obligatoires</td><td>Objets et prototypes ; <code>class</code> depuis 2015, posé par-dessus</td></tr>
+        <tr><td>Point commun</td><td colspan="2">Une syntaxe qui se ressemble (accolades, <code>if</code>, <code>for</code>), imposée par Netscape en 1995</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <h3>Le nom appartient à Oracle</h3>
+    <p>La marque « JavaScript » appartenait à Sun. Oracle en a hérité en rachetant Sun. C'est pour ça que la norme officielle s'appelle toujours ECMAScript, et que les comités parlent d'ES2015, ES2025.</p>
+  </div>
+</section>
+
+<!-- 3. TRAJET -->
+<section id="trajet">
+  <div class="sec-head">
+    <p class="eyebrow">Vue d'ensemble</p>
+    <h2>3 · Le trajet complet d'une page</h2>
+  </div>
+  <div class="prose stack">
+    <p>C'est la notion à vraiment fixer : <span class="t">PHP tourne sur le serveur</span>, une fois par requête, puis s'arrête. <span class="k">JavaScript tourne dans le navigateur</span>, aussi longtemps que la page est ouverte. Avance pas à pas :</p>
+  </div>
+  <div class="machine" id="m-flow">
+    <span class="label">MACHINE 2 · DE L'ADRESSE AU LIKE</span>
+    <div class="flow">
+      <div class="col">
+        <p class="col-h">TON NAVIGATEUR</p>
+        <div class="node" data-n="url">Barre d'adresse<small>ce que tu tapes</small></div>
+        <div class="node" data-n="dom">DOM<small>la page en mémoire</small></div>
+        <div class="node" data-n="js">Moteur JavaScript<small>V8, SpiderMonkey…</small></div>
+      </div>
+      <div class="col">
+        <p class="col-h">INTERNET ET SERVEUR</p>
+        <div class="node srv" data-n="dns">DNS<small>l'annuaire (épisode 4)</small></div>
+        <div class="node srv" data-n="php">Symfony (PHP) + Twig<small>fabrique la réponse</small></div>
+        <div class="node srv" data-n="db">Base de données<small>MySQL, PostgreSQL…</small></div>
+      </div>
+    </div>
+    <div class="track" aria-hidden="true">
+      <span class="end l">NAVIGATEUR</span><span class="end r">SERVEUR</span>
+      <span class="token" id="flow-token"></span>
+    </div>
+    <p class="step-text" id="flow-text" aria-live="polite"></p>
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <button class="btn" id="flow-prev" type="button">← Étape précédente</button>
+        <button class="btn on" id="flow-next" type="button">Étape suivante →</button>
+      </div>
+      <div class="dots" id="flow-dots" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <span class="yr">RECHARGEMENT COMPLET</span>
+      <p>Le serveur renvoie toute la page : en-tête, menu, contenu, pied de page. Le navigateur jette l'ancienne et reconstruit tout. Tu perds ta position dans la page.</p>
+<pre>&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;…
+&lt;body&gt;&lt;nav&gt;…&lt;/nav&gt;&lt;main&gt;…
+… des milliers de caractères …</pre>
+    </div>
+    <div class="card">
+      <span class="yr">AJAX AVEC FETCH()</span>
+      <p>JavaScript demande seulement la donnée qui change. Le serveur répond en JSON. Le reste de la page ne bouge pas.</p>
+<pre>{"likes": 43}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 4. DOM -->
+<section id="dom">
+  <div class="sec-head">
+    <p class="eyebrow">Ce que JavaScript manipule</p>
+    <h2>4 · Le DOM : la page devient un arbre</h2>
+  </div>
+  <div class="prose stack">
+    <p>Quand le navigateur lit le HTML, il le transforme en <span class="k">DOM</span> (Document Object Model) : un arbre d'objets, un par balise. JavaScript ne modifie pas le fichier HTML. Il modifie cet arbre en mémoire, et le navigateur redessine seulement ce qui a changé.</p>
+    <p>Chaque bouton ci-dessous exécute vraiment la ligne de code affichée sur la mini-page. L'arbre de droite est relu à chaque fois.</p>
+  </div>
+  <div class="machine" id="m-dom">
+    <span class="label">MACHINE 3 · MODIFIER L'ARBRE</span>
+    <div class="dom-box">
+      <div class="mini" id="mini-page" aria-label="Mini-page de démonstration"></div>
+      <div class="tree" id="dom-tree" aria-label="Arbre DOM de la mini-page"></div>
+    </div>
+    <div class="snips" id="dom-snips"></div>
+    <div class="readout">
+      <div class="cell-out"><span class="lab">MODIFICATIONS DU DOM</span><span class="val" id="dom-count">0</span></div>
+      <div class="cell-out"><span class="lab">RECHARGEMENTS DE PAGE</span><span class="val">0</span></div>
+    </div>
+  </div>
+  <div class="callout teal">
+    <h3>Et React, dans tout ça ?</h3>
+    <p>React fait la même chose, en automatique. Tu décris ce que la page doit afficher pour un état donné, et React calcule les modifications minimales du DOM à faire quand l'état change. Sous le capot, ce sont les mêmes <code>append</code>, <code>remove</code> et <code>textContent</code>.</p>
+  </div>
+</section>
+
+<!-- 5. BOUCLE -->
+<section id="boucle">
+  <div class="sec-head">
+    <p class="eyebrow">Comment ton code s'exécute</p>
+    <h2>5 · Un seul fil : la boucle d'événements</h2>
+  </div>
+  <div class="prose stack">
+    <p>JavaScript n'exécute qu'<span class="k">une chose à la fois</span>, sur une seule pile d'appels. Pour ne pas bloquer la page pendant qu'il attend un minuteur ou une réponse réseau, il confie l'attente au navigateur et met la suite dans une file. La <span class="k">boucle d'événements</span> vide ces files quand la pile est libre.</p>
+    <p>Devine dans quel ordre la console affiche les lettres, puis avance pas à pas.</p>
+  </div>
+  <div class="machine" id="m-loop">
+    <span class="label">MACHINE 4 · DANS QUEL ORDRE ?</span>
+    <div class="code-lines" id="loop-code"></div>
+    <div class="loop">
+      <div class="zone"><span class="lab">PILE D'APPELS</span><div id="z-stack" class="stack" style="gap:6px"></div></div>
+      <div class="zone"><span class="lab">NAVIGATEUR (MINUTEURS, RÉSEAU)</span><div id="z-api" class="stack" style="gap:6px"></div></div>
+      <div class="zone"><span class="lab">FILE DES MICROTÂCHES (PROMESSES)</span><div id="z-micro" class="stack" style="gap:6px"></div></div>
+      <div class="zone"><span class="lab">FILE DES TÂCHES (SETTIMEOUT, CLICS)</span><div id="z-task" class="stack" style="gap:6px"></div></div>
+      <div class="zone"><span class="lab">CONSOLE</span><div id="z-out" class="row" style="gap:10px"></div></div>
+    </div>
+    <p class="step-text" id="loop-text" aria-live="polite"></p>
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <button class="btn" id="loop-prev" type="button">← Précédent</button>
+        <button class="btn on" id="loop-next" type="button">Suivant →</button>
+      </div>
+      <div class="dots" id="loop-dots" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="callout">
+    <h3>Ce que ça change pour toi</h3>
+    <p>Une boucle de calcul très longue bloque tout : plus de clics, plus d'animation, la page « gèle ». Et le résultat d'un <code>fetch()</code> n'existe jamais à la ligne suivante : il arrive plus tard, par la file. C'est exactement ce que règle <code>await</code>.</p>
+  </div>
+</section>
+
+<!-- 6. PIÈGES -->
+<section id="pieges">
+  <div class="sec-head">
+    <p class="eyebrow">L'héritage des dix jours</p>
+    <h2>6 · Les pièges qu'on ne corrigera jamais</h2>
+  </div>
+  <div class="prose stack">
+    <p>Écrit en dix jours, déployé sur des millions de sites : JavaScript a gardé des comportements étranges. On ne peut pas les corriger, parce que des sites existants en dépendent. La règle des comités de normalisation, c'est <span class="k">« ne pas casser le web »</span> : on ajoute (<code>let</code>, <code>===</code>, le mode strict), on ne retire rien.</p>
+    <p>Devine chaque résultat avant de l'afficher. Les résultats sont calculés en direct par ton navigateur.</p>
+  </div>
+  <div class="machine">
+    <span class="label">MACHINE 5 · LA CONSOLE PIÉGÉE</span>
+    <div class="traps" id="traps"></div>
+    <div class="row"><button class="btn" id="traps-all" type="button">Tout afficher</button><span class="score" id="traps-score"></span></div>
+  </div>
+  <div class="callout teal">
+    <h3>Pourquoi <code>typeof null</code> vaut "object"</h3>
+    <p>Dans le tout premier moteur, chaque valeur portait une petite étiquette de type dans ses bits de poids faible. L'étiquette <code>000</code> voulait dire « objet ». Or <code>null</code> était représenté par le pointeur zéro : ses bits de poids faible valaient donc 000 aussi. Le bug a été repéré, mais le corriger casserait du code existant.</p>
+  </div>
+</section>
+
+<!-- 7. PARTOUT -->
+<section id="partout">
+  <div class="sec-head">
+    <p class="eyebrow">2026</p>
+    <h2>7 · De la colle de 1995 au langage partout</h2>
+  </div>
+  <div class="prose stack">
+    <p>Aujourd'hui, JavaScript est utilisé côté navigateur par <span class="k">98,9 % des sites web</span> (W3Techs, novembre 2026). C'est le seul langage que tous les navigateurs exécutent nativement depuis le début. Il est aussi sorti du navigateur.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><span class="yr">2008 · V8</span><p>Le moteur de Chrome compile JavaScript en code machine pendant l'exécution (compilation « juste à temps »). Ce gain de vitesse ouvre la voie aux applications web lourdes, puis à Node.js.</p></div>
+    <div class="card"><span class="yr">2009 · NODE.JS</span><p>V8 hors du navigateur : JavaScript sur un serveur, en ligne de commande, dans les outils de build. npm devient le plus gros registre de paquets.</p></div>
+    <div class="card"><span class="yr">2012 · TYPESCRIPT</span><p>Microsoft ajoute des types vérifiés avant l'exécution. TypeScript se compile en JavaScript : le navigateur ne voit jamais les types.</p></div>
+    <div class="card"><span class="yr">2013 · REACT</span><p>Facebook publie React : l'interface devient une fonction de l'état. Ta stack front actuelle.</p></div>
+    <div class="card"><span class="yr">2017 · WEBASSEMBLY</span><p>Un format binaire que les navigateurs exécutent à côté de JavaScript, pour le calcul lourd (jeux, vidéo). Il complète JavaScript, il ne le remplace pas.</p></div>
+    <div class="card"><span class="yr">CÔTÉ SYMFONY</span><p>Twig fabrique le HTML sur le serveur. Symfony UX (Stimulus, Turbo) ajoute juste assez de JavaScript pour faire vivre ces pages, sans écrire une application React complète.</p></div>
+  </div>
+</section>
+
+<!-- 8. DÉFIS -->
+<section id="defis">
+  <div class="sec-head">
+    <p class="eyebrow">À toi de jouer</p>
+    <h2>8 · Défis</h2>
+  </div>
+  <p class="score" id="score">SCORE : 0 / 0</p>
+  <div class="stack" id="quiz"></div>
+
+  <div class="stack">
+    <h3>Revue de code : trouve le bug</h3>
+    <div class="stack">
+<pre><span class="c">// formulaire.js</span>
+form.addEventListener('submit', (e) =&gt; {
+  if (!email.value.includes('@')) {
+    e.preventDefault();
+    erreur.textContent = 'E-mail invalide';
+  }
+});
+
+<span class="c">// InscriptionController.php</span>
+#[Route('/inscription', methods: ['POST'])]
+public function inscrire(Request $request, EntityManagerInterface $em): Response
+{
+    $user = new User();
+    $user-&gt;setEmail($request-&gt;request-&gt;get('email'));
+    $em-&gt;persist($user);
+    $em-&gt;flush();
+
+    return $this-&gt;redirectToRoute('merci');
+}</pre>
+      <details><summary>VOIR LA RÉPONSE</summary><div class="stack"><p>La seule vérification est dans le navigateur. Une requête envoyée avec <code>curl</code> ou modifiée dans les outils de développement enregistre n'importe quoi en base, même une chaîne vide. Il faut valider côté serveur : des contraintes <code>#[Assert\NotBlank]</code> et <code>#[Assert\Email]</code> sur l'entité, puis <code>$validator-&gt;validate($user)</code> (ou un formulaire Symfony) avant le <code>persist</code>. Le JavaScript reste utile, mais seulement pour le confort.</p></div></details>
+    </div>
+    <div class="stack">
+<pre><span class="c">// Page produit : l'API Symfony renvoie {"stock": "0"}</span>
+const res = await fetch('/api/produits/12');
+const produit = await res.json();
+
+if (produit.stock) {
+  boutonAcheter.disabled = false;
+}</pre>
+      <details><summary>VOIR LA RÉPONSE</summary><div class="stack"><p><code>"0"</code> est une chaîne non vide, donc « vraie » : le bouton s'active alors que le stock est vide. Côté front, compare un vrai nombre : <code>Number(produit.stock) &gt; 0</code>. Côté API, corrige la source : sérialise <code>stock</code> en entier, pas en chaîne.</p></div></details>
+    </div>
+    <div class="stack">
+<pre><span class="c">// Afficher le prénom de l'utilisateur connecté</span>
+let user;
+fetch('/api/me')
+  .then((r) =&gt; r.json())
+  .then((data) =&gt; { user = data; });
+
+titre.textContent = `Salut ${user.prenom}`;</pre>
+      <details><summary>VOIR LA RÉPONSE</summary><div class="stack"><p>La dernière ligne s'exécute avant que la réponse arrive : la suite du <code>fetch</code> attend dans une file (section 5). <code>user</code> vaut encore <code>undefined</code>, d'où <code>TypeError: Cannot read properties of undefined (reading 'prenom')</code>. Corrige avec une fonction <code>async</code> : <code>const user = await (await fetch('/api/me')).json();</code> puis seulement l'affichage.</p></div></details>
+    </div>
+    <div class="stack">
+<pre><span class="c">// React : un bouton qui doit ajouter 2 likes par clic</span>
+function Compteur() {
+  const [likes, setLikes] = useState(0);
+
+  function doubleLike() {
+    setLikes(likes + 1);
+    setLikes(likes + 1);
+  }
+
+  return &lt;button onClick={doubleLike}&gt;♥ {likes}&lt;/button&gt;;
+}</pre>
+      <details><summary>VOIR LA RÉPONSE</summary><div class="stack"><p>Les deux appels lisent la même valeur de <code>likes</code>, celle du rendu en cours (disons 0). Ils demandent tous les deux « mets 1 ». Résultat : +1 par clic. Passe une fonction, qui reçoit la valeur la plus récente : <code>setLikes((n) =&gt; n + 1)</code>, deux fois.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- MÉMO -->
+<section id="memo">
+  <div class="sec-head">
+    <p class="eyebrow">À garder</p>
+    <h2>Fiche mémo</h2>
+  </div>
+  <div class="scroll">
+    <table class="cmp">
+      <thead><tr><th>NOTION</th><th>EN UNE PHRASE</th></tr></thead>
+      <tbody>
+        <tr><td>Raison d'être</td><td>Faire réagir la page dans le navigateur, sans attendre le serveur (1995).</td></tr>
+        <tr><td>Serveur / client</td><td>PHP fabrique la page une fois par requête. JavaScript la fait vivre tant qu'elle est ouverte.</td></tr>
+        <tr><td>Validation</td><td>Navigateur pour le confort, serveur pour la sécurité. Toujours les deux.</td></tr>
+        <tr><td>DOM</td><td>L'arbre d'objets construit à partir du HTML. JavaScript modifie l'arbre, pas le fichier.</td></tr>
+        <tr><td>Ajax / fetch</td><td>Demander une donnée au serveur sans recharger la page.</td></tr>
+        <tr><td>Boucle d'événements</td><td>Une seule pile. Ordre : code direct, puis microtâches (promesses), puis tâches (setTimeout, clics).</td></tr>
+        <tr><td>Comparaisons</td><td>Toujours <code>===</code>. Méfie-toi des chaînes qui ressemblent à des nombres.</td></tr>
+        <tr><td>ECMAScript</td><td>Le nom officiel de la norme, une édition chaque juin depuis 2015.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p class="eyebrow">Sources</p>
+  <ul>
+    <li><a href="https://dokk.org/library/javascript_the_first_20_years_2020" target="_blank" rel="noopener">Allen Wirfs-Brock et Brendan Eich, « JavaScript: The First 20 Years » (HOPL, 2020)</a></li>
+    <li><a href="https://exploringjs.com/es5/ch04.html" target="_blank" rel="noopener">Axel Rauschmayer, <em>Speaking JavaScript</em>, chapitre « How JavaScript Was Created »</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/ECMAScript_version_history" target="_blank" rel="noopener">ECMAScript version history (Wikipedia)</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Ajax_(programming)" target="_blank" rel="noopener">Ajax (Wikipedia)</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/V8_(JavaScript_engine)" target="_blank" rel="noopener">V8 (Wikipedia)</a></li>
+    <li><a href="https://flaviocopes.com/node-history/" target="_blank" rel="noopener">Flavio Copes, « A brief history of Node.js »</a></li>
+    <li><a href="https://2ality.com/2013/10/typeof-null.html" target="_blank" rel="noopener">Axel Rauschmayer, « The history of typeof null »</a> et <a href="https://2ality.com/2025/08/javascript-trademark.html" target="_blank" rel="noopener">« JavaScript's trademark problem »</a></li>
+    <li><a href="https://w3techs.com/technologies/details/cp-javascript" target="_blank" rel="noopener">W3Techs : usage de JavaScript côté client (novembre 2026)</a></li>
+  </ul>
+</footer>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmtS = (s) => (Math.round(s * 10) / 10).toString().replace('.', ',') + ' s';
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+
+  /* ---------- machine 1 : aller-retour ---------- */
+  let modeJS = false, busy = false, trips = 0, wait = 0;
+  const email = $('trip-email'), packet = $('packet'), ptxt = $('packet-txt');
+  const problem = (v) => {
+    v = v.trim();
+    if (!v) return 'Le champ est vide.';
+    if (!v.includes('@')) return 'Il manque l’arobase (@).';
+    const [user, dom] = [v.slice(0, v.indexOf('@')), v.slice(v.indexOf('@') + 1)];
+    if (!user) return 'Il manque la partie avant l’arobase.';
+    if (!dom.includes('.') || dom.endsWith('.') || dom.startsWith('.')) return 'Le domaine est incomplet (exemple : gmail.com).';
+    if (/\s/.test(v)) return 'Un e-mail ne contient pas d’espace.';
+    return '';
+  };
+  const delay = () => parseFloat($('trip-delay').value);
+  function setMode(js) {
+    modeJS = js;
+    $('trip-1995').classList.toggle('on', !js); $('trip-1995').setAttribute('aria-pressed', String(!js));
+    $('trip-js').classList.toggle('on', js); $('trip-js').setAttribute('aria-pressed', String(js));
+    live();
+    $('trip-msg').textContent = js ? 'Mode JavaScript : le navigateur vérifie pendant que tu tapes.' : 'Mode 1995 : le navigateur ne sait pas vérifier. Clique sur Envoyer.';
+    $('trip-msg').className = 'msg';
+  }
+  function live() {
+    const p = problem(email.value);
+    email.classList.remove('bad', 'good');
+    if (!modeJS) { $('trip-live').textContent = ''; return; }
+    if (p) { $('trip-live').textContent = 'Navigateur : ' + p; $('trip-live').className = 'hint bad'; email.classList.add('bad'); }
+    else { $('trip-live').textContent = 'Navigateur : format correct.'; $('trip-live').className = 'hint ok'; email.classList.add('good'); }
+  }
+  function movePacket(from, to, ms, label, color) {
+    return new Promise((res) => {
+      ptxt.textContent = label;
+      packet.querySelector('rect').setAttribute('fill', color);
+      packet.setAttribute('opacity', '1');
+      if (reduce) { packet.setAttribute('transform', `translate(${to} 0)`); setTimeout(res, ms); return; }
+      const t0 = performance.now();
+      const tick = (t) => {
+        const k = Math.min(1, (t - t0) / ms);
+        const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        packet.setAttribute('transform', `translate(${from + (to - from) * e} 0)`);
+        if (k < 1) requestAnimationFrame(tick); else res();
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+  const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function roundTrip(serverOk) {
+    busy = true; $('trip-send').disabled = true;
+    const total = delay() * 1000;
+    $('lane-nav').classList.add('hot');
+    await movePacket(81, 519, total * 0.42, 'FORMULAIRE', '#ffe14d');
+    $('lane-nav').classList.remove('hot'); $('lane-srv').classList.add('hot');
+    ptxt.textContent = 'VÉRIFIE…';
+    await pause(total * 0.16);
+    $('lane-srv').classList.remove('hot');
+    await movePacket(519, 81, total * 0.42, serverOk ? 'OK' : 'ERREUR', serverOk ? '#3ddc84' : '#ff3b30');
+    packet.setAttribute('opacity', '0');
+    trips++; wait += delay();
+    $('trip-count').textContent = trips; $('trip-wait').textContent = fmtS(wait);
+    busy = false; $('trip-send').disabled = false;
+  }
+  $('trip-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    const p = problem(email.value);
+    if (modeJS && p) {
+      $('trip-who').textContent = 'le navigateur';
+      $('trip-msg').textContent = 'Bloqué dans le navigateur, avant tout envoi : 0 aller-retour, réponse immédiate.';
+      $('trip-msg').className = 'msg bad';
+      email.focus();
+      return;
+    }
+    $('trip-msg').textContent = 'Envoi au serveur… attends.';
+    $('trip-msg').className = 'msg';
+    await roundTrip(!p);
+    if (p) {
+      $('trip-who').textContent = 'le serveur';
+      $('trip-msg').textContent = `Réponse du serveur, ${fmtS(delay())} plus tard : « ${p} » Corrige et renvoie.`;
+      $('trip-msg').className = 'msg bad';
+    } else {
+      $('trip-who').textContent = modeJS ? 'navigateur + serveur' : 'le serveur';
+      $('trip-msg').textContent = modeJS ? 'Inscription enregistrée. Le serveur a revérifié l’e-mail de son côté : un seul aller-retour, et seulement pour enregistrer.' : 'Inscription enregistrée, enfin.';
+      $('trip-msg').className = 'msg ok';
+    }
+  });
+  email.addEventListener('input', live);
+  $('trip-1995').addEventListener('click', () => setMode(false));
+  $('trip-js').addEventListener('click', () => setMode(true));
+  $('trip-delay').addEventListener('input', () => { $('trip-delay-out').textContent = fmtS(delay()); });
+  $('trip-reset').addEventListener('click', () => {
+    if (busy) return;
+    trips = 0; wait = 0; email.value = 'jean.dupont-gmail.com';
+    $('trip-count').textContent = '0'; $('trip-wait').textContent = '0 s'; $('trip-who').textContent = 'personne';
+    setMode(modeJS);
+  });
+  setMode(false);
+
+  /* ---------- machine 2 : trajet ---------- */
+  const STEPS = [
+    { on: ['url', 'dns'], dir: 'r', tok: 'devdecod3d.fr ?', t: 'Tu tapes une adresse. Le navigateur demande d’abord au DNS l’adresse IP du serveur. C’est l’annuaire de l’épisode 4.' },
+    { on: ['url', 'php'], dir: 'r', tok: 'GET /', t: 'Il envoie une requête HTTP au serveur : « donne-moi la page d’accueil ».' },
+    { on: ['php', 'db'], t: 'Côté serveur, Symfony exécute le contrôleur, lit les données dans la base, et Twig fabrique le HTML. Tout ça se passe avant que tu voies quoi que ce soit.' },
+    { on: ['php'], dir: 'l', tok: 'HTML + liens CSS/JS', srv: true, t: 'Le serveur renvoie le HTML, avec des liens vers les fichiers CSS et JavaScript. Pour cette requête, PHP a fini : il ne tourne plus. Il ne « voit » pas ce que tu fais ensuite sur la page.' },
+    { on: ['dom'], t: 'Le navigateur lit le HTML et construit le DOM, un arbre d’objets qui représente la page. Il applique le CSS par-dessus et dessine.' },
+    { on: ['js', 'dom'], t: 'Le navigateur télécharge et exécute le JavaScript. À partir de là, c’est lui qui fait vivre la page : il écoute les clics et peut modifier le DOM.' },
+    { on: ['js', 'dom'], t: 'Tu cliques sur J’aime. JavaScript reçoit l’événement et allume le cœur tout de suite, sans attendre personne.' },
+    { on: ['js', 'php', 'db'], dir: 'r', tok: 'POST /like', t: 'En arrière-plan, fetch() prévient le serveur. Symfony vérifie que tu as le droit de liker, puis enregistre le like en base.' },
+    { on: ['js', 'dom'], dir: 'l', tok: '{"likes": 43}', srv: true, t: 'Le serveur répond avec quelques octets de JSON, pas une page entière. JavaScript met à jour le compteur. La page n’a jamais été rechargée : c’est l’idée d’Ajax.' },
+  ];
+  let fs = 0;
+  const token = $('flow-token');
+  const dotsF = $('flow-dots');
+  STEPS.forEach(() => dotsF.appendChild(el('i')));
+  function renderFlow(animate) {
+    const s = STEPS[fs];
+    document.querySelectorAll('#m-flow .node').forEach((n) => n.classList.toggle('hot', s.on.includes(n.dataset.n)));
+    $('flow-text').textContent = `Étape ${fs + 1} sur ${STEPS.length}. ${s.t}`;
+    [...dotsF.children].forEach((d, i) => d.classList.toggle('on', i <= fs));
+    $('flow-prev').disabled = fs === 0;
+    $('flow-next').disabled = fs === STEPS.length - 1;
+    token.getAnimations().forEach((a) => a.cancel());
+    if (!s.dir) { token.style.opacity = '0'; return; }
+    token.textContent = s.tok;
+    token.classList.toggle('srv', !!s.srv);
+    const A = { left: '0%', transform: 'translate(0, -50%)' };
+    const B = { left: '100%', transform: 'translate(-100%, -50%)' };
+    const frames = s.dir === 'r' ? [A, B] : [B, A];
+    if (!animate || reduce || !token.animate) { Object.assign(token.style, frames[1]); token.style.opacity = '1'; return; }
+    token.style.opacity = '1';
+    token.animate(frames, { duration: 1400, easing: 'ease-in-out', fill: 'forwards' });
+  }
+  $('flow-next').addEventListener('click', () => { if (fs < STEPS.length - 1) { fs++; renderFlow(true); } });
+  $('flow-prev').addEventListener('click', () => { if (fs > 0) { fs--; renderFlow(true); } });
+  renderFlow(false);
+
+  /* ---------- machine 3 : DOM ---------- */
+  const mini = $('mini-page');
+  let likes, domCount = 0, nextName = 0;
+  const NAMES = ['Brendan', 'Ada', 'Linus', 'Grace', 'Ryan'];
+  function buildMini() {
+    mini.innerHTML = '';
+    const h = el('h4', null, 'Les inscrits');
+    const ul = el('ul');
+    ['Jean', 'Alexandre'].forEach((n) => ul.appendChild(el('li', null, n)));
+    likes = 42;
+    const b = el('button', 'like', '♥ 42'); b.type = 'button'; b.tabIndex = -1;
+    mini.append(h, ul, b);
+  }
+  function renderTree(changed) {
+    const tree = $('dom-tree');
+    tree.innerHTML = '';
+    const walk = (node, depth) => {
+      const line = el('div');
+      line.style.paddingLeft = (depth * 18) + 'px';
+      const name = node === mini ? 'div#page' : node.tagName.toLowerCase();
+      line.appendChild(el('span', 'tag', name));
+      const cls = [...node.classList].filter((c) => c !== 'flash');
+      if (cls.length && node !== mini) line.appendChild(el('span', 'cls', '.' + cls.join('.')));
+      const own = [...node.childNodes].filter((c) => c.nodeType === 3 && c.textContent.trim()).map((c) => c.textContent.trim()).join(' ');
+      if (own) line.appendChild(el('span', 'txt', '  "' + own + '"'));
+      if (changed && changed.includes(node)) line.classList.add('flash');
+      tree.appendChild(line);
+      [...node.children].forEach((c) => walk(c, depth + 1));
+    };
+    walk(mini, 0);
+  }
+  const SNIPS = [
+    { code: 'titre.textContent = liste.children.length + " inscrits"', run: () => { const h = mini.querySelector('h4'); h.textContent = mini.querySelectorAll('li').length + ' inscrits'; return [h]; } },
+    { code: 'liste.append(nouvelItem("Brendan"))', run: () => { const li = el('li', null, NAMES[nextName++ % NAMES.length]); mini.querySelector('ul').append(li); return [li]; } },
+    { code: 'liste.firstElementChild.remove()', run: () => { const ul = mini.querySelector('ul'); if (ul.firstElementChild) ul.firstElementChild.remove(); return [ul]; } },
+    { code: 'bouton.classList.toggle("aime")\nlikes += bouton.classList.contains("aime") ? 1 : -1\nbouton.textContent = "♥ " + likes', run: () => { const b = mini.querySelector('.like'); const on = b.classList.toggle('aime'); likes += on ? 1 : -1; b.textContent = '♥ ' + likes; return [b]; } },
+  ];
+  SNIPS.forEach((s, i) => {
+    const b = el('button', null, s.code); b.type = 'button';
+    b.addEventListener('click', () => {
+      const changed = s.run();
+      if (i === 1) b.textContent = `liste.append(nouvelItem("${NAMES[nextName % NAMES.length]}"))`;
+      domCount++; $('dom-count').textContent = domCount;
+      changed.forEach((c) => { c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); c.addEventListener('animationend', () => c.classList.remove('flash'), { once: true }); });
+      renderTree(changed);
+    });
+    $('dom-snips').appendChild(b);
+  });
+  const reset = el('button', null, '// tout remettre comme au chargement'); reset.type = 'button';
+  reset.addEventListener('click', () => { buildMini(); nextName = 0; domCount = 0; $('dom-count').textContent = '0'; renderTree(); $('dom-snips').children[1].textContent = 'liste.append(nouvelItem("Brendan"))'; });
+  $('dom-snips').appendChild(reset);
+  buildMini(); renderTree();
+
+  /* ---------- machine 4 : boucle d'événements ---------- */
+  const CODE = ["console.log('A');", "setTimeout(() => console.log('B'), 0);", "Promise.resolve().then(() => console.log('C'));", "console.log('D');"];
+  const B = "() => log('B')", C = "() => log('C')";
+  const LS = [
+    { l: -1, st: [], api: [], mi: [], ta: [], out: [], t: 'Avant de lancer : à ton avis, dans quel ordre la console affiche A, B, C et D ?' },
+    { l: 0, st: ["console.log('A')"], api: [], mi: [], ta: [], out: ['A'], t: 'Ligne 1 : un appel direct. Il entre dans la pile, s’exécute, sort. La console affiche A.' },
+    { l: 1, st: ['setTimeout(…)'], api: ['minuteur 0 ms → B'], mi: [], ta: [], out: ['A'], t: 'Ligne 2 : setTimeout ne lance pas B. Il confie la fonction au navigateur avec un minuteur, puis rend la main tout de suite.' },
+    { l: 1, st: [], api: [], mi: [], ta: [B], out: ['A'], t: 'Le minuteur de 0 ms est écoulé : le navigateur dépose B dans la file des tâches. B doit attendre que la pile soit vide.' },
+    { l: 2, st: ['Promise.then(…)'], api: [], mi: [C], ta: [B], out: ['A'], t: 'Ligne 3 : la promesse est déjà résolue. Sa suite, C, part dans la file des microtâches, une file prioritaire.' },
+    { l: 3, st: ["console.log('D')"], api: [], mi: [C], ta: [B], out: ['A', 'D'], t: 'Ligne 4 : un appel direct. D s’affiche avant B et C, parce qu’eux attendent dans des files.' },
+    { l: -1, st: [], api: [], mi: [C], ta: [B], out: ['A', 'D'], t: 'Le script est fini, la pile est vide. La boucle d’événements regarde les files. Règle : toutes les microtâches passent avant la tâche suivante.' },
+    { l: 2, st: [C], api: [], mi: [], ta: [B], out: ['A', 'D', 'C'], t: 'C sort de la file des microtâches, entre dans la pile et s’exécute.' },
+    { l: 1, st: [B], api: [], mi: [], ta: [], out: ['A', 'D', 'C', 'B'], t: 'Enfin B, depuis la file des tâches. Résultat : A, D, C, B. Le « 0 ms » de setTimeout veut dire « dès que possible », pas « maintenant ».' },
+  ];
+  let ls = 0;
+  const codeBox = $('loop-code');
+  CODE.forEach((c) => codeBox.appendChild(el('div', null, c)));
+  const dotsL = $('loop-dots');
+  LS.forEach(() => dotsL.appendChild(el('i')));
+  const fill = (id, items, cls) => { const z = $(id); z.innerHTML = ''; items.forEach((x) => z.appendChild(el('span', 'chip ' + cls, x))); };
+  function renderLoop() {
+    const s = LS[ls];
+    [...codeBox.children].forEach((d, i) => d.classList.toggle('cur', i === s.l));
+    fill('z-stack', s.st, 'st'); fill('z-api', s.api, 'api'); fill('z-micro', s.mi, 'mi'); fill('z-task', s.ta, 'ta'); fill('z-out', s.out, 'out');
+    $('loop-text').textContent = s.t;
+    [...dotsL.children].forEach((d, i) => d.classList.toggle('on', i <= ls));
+    $('loop-prev').disabled = ls === 0;
+    $('loop-next').disabled = ls === LS.length - 1;
+  }
+  $('loop-next').addEventListener('click', () => { if (ls < LS.length - 1) { ls++; renderLoop(); } });
+  $('loop-prev').addEventListener('click', () => { if (ls > 0) { ls--; renderLoop(); } });
+  renderLoop();
+
+  /* ---------- machine 5 : console piégée ---------- */
+  const show = (v) => {
+    if (typeof v === 'string') return JSON.stringify(v);
+    if (Array.isArray(v)) return '[' + v.map(show).join(', ') + ']';
+    return String(v);
+  };
+  const TRAPS = [
+    ['"1" + 1', () => '1' + 1, 'Avec +, si un des deux côtés est une chaîne, JavaScript colle : c’est une concaténation.'],
+    ['"1" - 1', () => '1' - 1, 'Le - n’existe que pour les nombres : la chaîne est convertie en nombre avant le calcul.'],
+    ['"5" == 5', () => '5' == 5, '== convertit les types avant de comparer. Pratique en 1995, piégeux aujourd’hui.'],
+    ['"5" === 5', () => '5' === 5, '=== compare aussi le type : une chaîne n’est pas un nombre. Utilise toujours ===.'],
+    ['0.1 + 0.2', () => 0.1 + 0.2, 'Tous les nombres sont des flottants 64 bits : 0,1 ne tombe pas juste en binaire. Pour de l’argent, compte en centimes.'],
+    ['typeof null', () => typeof null, 'Un bug du tout premier moteur, gardé pour ne pas casser le web (encadré plus bas).'],
+    ['[1, 2, 10].sort()', () => [1, 2, 10].sort(), 'Sans fonction de comparaison, sort() trie comme du texte : "10" passe avant "2". Écris sort((a, b) => a - b).'],
+    ['NaN === NaN', () => NaN === NaN, 'NaN (« pas un nombre ») n’est égal à rien, même pas à lui-même. Teste avec Number.isNaN().'],
+    ['Boolean("0")', () => Boolean('0'), 'Toute chaîne non vide est « vraie », même "0". Seule la chaîne vide "" est fausse.'],
+  ];
+  let shown = 0;
+  const trapsBox = $('traps');
+  const reveals = [];
+  TRAPS.forEach(([ex, fn, why]) => {
+    const box = el('div', 'trap');
+    box.appendChild(el('span', 'ex', ex));
+    const res = el('span', 'res', show(fn())); res.hidden = true;
+    const w = el('p', 'why', why); w.hidden = true;
+    const b = el('button', 'btn', 'Afficher le résultat'); b.type = 'button';
+    const reveal = () => { if (!res.hidden) return; res.hidden = false; w.hidden = false; b.hidden = true; shown++; $('traps-score').textContent = `${shown} / ${TRAPS.length} AFFICHÉS`; };
+    b.addEventListener('click', reveal);
+    reveals.push(reveal);
+    box.append(res, w, b);
+    trapsBox.appendChild(box);
+  });
+  $('traps-all').addEventListener('click', () => reveals.forEach((r) => r()));
+  $('traps-score').textContent = `0 / ${TRAPS.length} AFFICHÉS`;
+
+  /* ---------- quiz ---------- */
+  const Q = [
+    ['Combien de temps a pris le premier prototype de JavaScript ?', ['10 jours', '6 mois', '2 ans'], 0, 'Brendan Eich l’a écrit en dix jours d’affilée, en mai 1995. Le langage a été affiné ensuite, mais beaucoup de choix de ces dix jours sont restés.'],
+    ['Pourquoi « JavaScript » s’appelle comme ça ?', ['C’est une version légère de Java', 'Pour profiter de la popularité de Java', 'Il a été créé par Sun'], 1, 'Le nom a été choisi en décembre 1995, en pleine vague Java, avec un accord entre Netscape et Sun. Les deux langages restent très différents.'],
+    ['Où s’exécute le JavaScript d’une page web ?', ['Sur le serveur, avant l’envoi', 'Dans le navigateur de l’utilisateur', 'Dans la base de données'], 1, 'Il est téléchargé avec la page puis exécuté par le moteur du navigateur. C’est pour ça qu’on ne peut pas lui faire confiance pour la sécurité.'],
+    ['Que vaut "1" + 1 ?', ['2', '"11"', 'une erreur'], 1, 'Avec +, une chaîne d’un côté suffit à transformer l’addition en concaténation.'],
+    ['setTimeout(f, 0) puis Promise.resolve().then(g) : qui passe en premier ?', ['f', 'g', 'ça dépend du navigateur'], 1, 'Les suites de promesses vont dans la file des microtâches, vidée avant la file des tâches où attend f.'],
+    ['Pourquoi typeof null === "object" n’est-il jamais corrigé ?', ['Ce n’est pas un bug', 'Ça casserait des sites existants', 'Personne ne l’a remarqué'], 1, 'Des millions de pages en dépendent peut-être. La règle des comités : ne pas casser le web.'],
+    ['Quel est le nom officiel de la norme ?', ['JavaScript', 'ECMAScript', 'LiveScript'], 1, '« JavaScript » est une marque, aujourd’hui détenue par Oracle. La norme ECMA-262 s’appelle ECMAScript depuis 1997.'],
+    ['Qu’a apporté Node.js en 2009 ?', ['Un nouveau langage', 'JavaScript en dehors du navigateur', 'Le DOM'], 1, 'Node.js prend V8, le moteur de Chrome, et le fait tourner sur un serveur ou en ligne de commande.'],
+  ];
+  let answered = 0, good = 0;
+  const quiz = $('quiz');
+  Q.forEach(([q, opts, ok, exp], qi) => {
+    const box = el('div', 'q');
+    const h = el('h3', null, (qi + 1) + '. ' + q);
+    const o = el('div', 'opts');
+    const e = el('p', 'exp', exp); e.hidden = true;
+    opts.forEach((txt, i) => {
+      const b = el('button', null, txt); b.type = 'button';
+      b.addEventListener('click', () => {
+        [...o.children].forEach((c, j) => { c.disabled = true; if (j === ok) c.classList.add('good'); });
+        if (i !== ok) b.classList.add('wrong'); else good++;
+        answered++;
+        e.hidden = false;
+        $('score').textContent = `SCORE : ${good} / ${answered}` + (answered === Q.length ? (good === Q.length ? ' · PARFAIT' : ' · RELIS LES SECTIONS RATÉES') : '');
+      });
+      o.appendChild(b);
+    });
+    box.append(h, o, e);
+    quiz.appendChild(box);
+  });
+  $('score').textContent = `SCORE : 0 / 0 · ${Q.length} QUESTIONS`;
+})();
+</script>
+
+</body>
+</html>
